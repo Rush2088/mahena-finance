@@ -47,11 +47,62 @@ function getLast6Months() {
   return result
 }
 
+function printDashboard(monthTitle) {
+  const el = document.getElementById('dashboard-print-area')
+  if (!el) return
+  const printWindow = window.open('', '_blank')
+  printWindow.document.write(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Ma'he'na Estate — Dashboard ${monthTitle}</title>
+      <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: system-ui, sans-serif; background: #fff; color: #1f2937; }
+        .print-header {
+          background: #1a3020; color: #f5edd8; padding: 12px 20px;
+          display: flex; justify-content: space-between; align-items: center;
+          margin-bottom: 16px;
+        }
+        .print-header .title { font-size: 15px; font-weight: 500; letter-spacing: 0.15em; }
+        .print-header .title span { color: #c9a84c; }
+        .print-header .sub { font-size: 10px; color: rgba(245,237,216,0.5); margin-top: 2px; letter-spacing: 0.1em; }
+        .print-header .right { text-align: right; font-size: 11px; color: rgba(245,237,216,0.7); }
+        .content { padding: 0 16px 16px; }
+        svg text { font-family: system-ui, sans-serif !important; }
+        @media print {
+          body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        }
+      </style>
+    </head>
+    <body>
+      <div class="print-header">
+        <div>
+          <div class="title"><span>Ma'he'na</span> Estate</div>
+          <div class="sub">Finance Tracker</div>
+        </div>
+        <div class="right">
+          Dashboard — ${monthTitle}<br/>
+          Generated: ${new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}<br/>
+          Prepared by: R. Dahanayake
+        </div>
+      </div>
+      <div class="content">${el.innerHTML}</div>
+    </body>
+    </html>
+  `)
+  printWindow.document.close()
+  setTimeout(() => {
+    printWindow.focus()
+    printWindow.print()
+    printWindow.close()
+  }, 500)
+}
+
 export default function Dashboard({ transactions, loading }) {
   const months = getLast6Months()
   const [selectedMonthKey, setSelectedMonthKey] = useState(months[months.length - 1].key)
 
-  // Transactions for selected month
   const monthTxns = useMemo(() =>
     transactions.filter(t => t.date?.startsWith(selectedMonthKey)),
     [transactions, selectedMonthKey]
@@ -62,7 +113,6 @@ export default function Dashboard({ transactions, loading }) {
   const netProfit    = totalIncome - totalExpense
   const margin       = totalIncome > 0 ? Math.round((netProfit / totalIncome) * 100) : 0
 
-  // Income by subcategory
   const incomeByCategory = useMemo(() =>
     INCOME_CATEGORIES.map(name => ({
       name,
@@ -70,7 +120,6 @@ export default function Dashboard({ transactions, loading }) {
                       .reduce((s, t) => s + Number(t.amount), 0)
     })), [monthTxns])
 
-  // Expense by subcategory
   const expenseByCategory = useMemo(() =>
     EXPENSE_CATEGORIES.map(name => ({
       name,
@@ -78,7 +127,6 @@ export default function Dashboard({ transactions, loading }) {
                       .reduce((s, t) => s + Number(t.amount), 0)
     })), [monthTxns])
 
-  // 6-month trend
   const trendData = useMemo(() =>
     months.map(({ key, label }) => {
       const txns = transactions.filter(t => t.date?.startsWith(key))
@@ -89,7 +137,6 @@ export default function Dashboard({ transactions, loading }) {
       }
     }), [transactions, months])
 
-  // Monthly net profit (last 6)
   const netData = useMemo(() =>
     months.map(({ key, label }) => {
       const txns = transactions.filter(t => t.date?.startsWith(key))
@@ -100,85 +147,96 @@ export default function Dashboard({ transactions, loading }) {
 
   const maxIncome  = Math.max(...incomeByCategory.map(d => d.value), 1)
   const maxExpense = Math.max(...expenseByCategory.map(d => d.value), 1)
-
   const card = "bg-white border border-gray-200 rounded-lg p-4"
   const sl   = "text-xs font-medium text-gray-400 uppercase tracking-wider mb-1"
-
   const fmtTooltip = (val) => fmtCurrency(val)
+  const currentMonthTitle = monthLabel(...selectedMonthKey.split('-').map(Number))
 
   return (
     <div className="p-4 flex flex-col gap-3" style={{ background: '#f9fafb' }}>
 
-      {/* Month selector */}
+      {/* Toolbar */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <button onClick={() => {
             const i = months.findIndex(m => m.key === selectedMonthKey)
             if (i > 0) setSelectedMonthKey(months[i - 1].key)
           }} className="w-7 h-7 flex items-center justify-center border border-gray-200 rounded text-gray-500 cursor-pointer bg-white hover:bg-gray-50">‹</button>
-          <span className="text-sm font-medium text-gray-800">
-            {monthLabel(...selectedMonthKey.split('-').map(Number))}
-          </span>
+          <span className="text-sm font-medium text-gray-800">{currentMonthTitle}</span>
           <button onClick={() => {
             const i = months.findIndex(m => m.key === selectedMonthKey)
             if (i < months.length - 1) setSelectedMonthKey(months[i + 1].key)
           }} className="w-7 h-7 flex items-center justify-center border border-gray-200 rounded text-gray-500 cursor-pointer bg-white hover:bg-gray-50">›</button>
         </div>
-        <span className="text-xs text-gray-400">All figures in LKR</span>
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-gray-400">All figures in LKR</span>
+          <button
+            onClick={() => printDashboard(currentMonthTitle)}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded font-medium cursor-pointer border"
+            style={{ background: '#fcebeb', borderColor: '#e24b4a', color: '#a32d2d' }}
+          >
+            🖨 Print / Save PDF
+          </button>
+        </div>
       </div>
 
       {loading && <div className="text-sm text-gray-400 text-center py-6">Loading…</div>}
 
-      {/* Metric cards */}
-      <div className="grid grid-cols-4 gap-3">
-        <MetricCard label="Total Income"   value={fmtShort(totalIncome)}  sub={`${monthTxns.filter(t=>t.type==='income').length} transactions`}  color="#3a6b3c" />
-        <MetricCard label="Total Expenses" value={fmtShort(totalExpense)} sub={`${monthTxns.filter(t=>t.type==='expense').length} transactions`} color="#a32d2d" />
-        <MetricCard label="Net Profit"     value={fmtShort(netProfit)}    sub="this month"   color={netProfit >= 0 ? '#185fa5' : '#a32d2d'} />
-        <MetricCard label="Profit Margin"  value={`${margin}%`}           sub="of income"    color="#854f0b" />
-      </div>
+      {/* Printable area */}
+      <div id="dashboard-print-area" className="flex flex-col gap-3">
 
-      {/* Breakdown charts */}
-      <div className="grid grid-cols-2 gap-3">
-        <div className={card}>
-          <div className={sl}>Income by subcategory</div>
-          <HBarChart data={incomeByCategory} maxVal={maxIncome} />
+        {/* Metric cards */}
+        <div className="grid grid-cols-4 gap-3">
+          <MetricCard label="Total Income"   value={fmtShort(totalIncome)}  sub={`${monthTxns.filter(t=>t.type==='income').length} transactions`}  color="#3a6b3c" />
+          <MetricCard label="Total Expenses" value={fmtShort(totalExpense)} sub={`${monthTxns.filter(t=>t.type==='expense').length} transactions`} color="#a32d2d" />
+          <MetricCard label="Net Profit"     value={fmtShort(netProfit)}    sub="this month"   color={netProfit >= 0 ? '#185fa5' : '#a32d2d'} />
+          <MetricCard label="Profit Margin"  value={`${margin}%`}           sub="of income"    color="#854f0b" />
         </div>
-        <div className={card}>
-          <div className={sl}>Expenses by subcategory</div>
-          <HBarChart data={expenseByCategory} maxVal={maxExpense} />
-        </div>
-      </div>
 
-      {/* Trend + Net profit charts */}
-      <div className="grid grid-cols-2 gap-3">
-        <div className={card}>
-          <div className={sl}>6-month income vs expenses</div>
-          <ResponsiveContainer width="100%" height={160}>
-            <BarChart data={trendData} barCategoryGap="30%" margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
-              <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} tickFormatter={v => `${Math.round(v/1000)}k`} />
-              <Tooltip formatter={fmtTooltip} contentStyle={{ fontSize: 12, border: '1px solid #e5e7eb' }} />
-              <Legend iconSize={10} wrapperStyle={{ fontSize: 11 }} />
-              <Bar dataKey="Income"   fill="#3a6b3c" radius={[3,3,0,0]} />
-              <Bar dataKey="Expenses" fill="#c9a84c" radius={[3,3,0,0]} />
-            </BarChart>
-          </ResponsiveContainer>
+        {/* Breakdown charts */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className={card}>
+            <div className={sl}>Income by subcategory</div>
+            <HBarChart data={incomeByCategory} maxVal={maxIncome} />
+          </div>
+          <div className={card}>
+            <div className={sl}>Expenses by subcategory</div>
+            <HBarChart data={expenseByCategory} maxVal={maxExpense} />
+          </div>
         </div>
-        <div className={card}>
-          <div className={sl}>Monthly net profit — last 6 months</div>
-          <ResponsiveContainer width="100%" height={160}>
-            <BarChart data={netData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
-              <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} tickFormatter={v => `${Math.round(v/1000)}k`} />
-              <Tooltip formatter={fmtTooltip} contentStyle={{ fontSize: 12, border: '1px solid #e5e7eb' }} />
-              <Bar dataKey="Net" radius={[3,3,0,0]}>
-                {netData.map((entry, i) => (
-                  <Cell key={i} fill={entry.Net >= 0 ? '#3a6b3c' : '#a32d2d'} />
-                ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
+
+        {/* Trend charts */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className={card}>
+            <div className={sl}>6-month income vs expenses</div>
+            <ResponsiveContainer width="100%" height={160}>
+              <BarChart data={trendData} barCategoryGap="30%" margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
+                <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} tickFormatter={v => `${Math.round(v/1000)}k`} />
+                <Tooltip formatter={fmtTooltip} contentStyle={{ fontSize: 12, border: '1px solid #e5e7eb' }} />
+                <Legend iconSize={10} wrapperStyle={{ fontSize: 11 }} />
+                <Bar dataKey="Income"   fill="#3a6b3c" radius={[3,3,0,0]} />
+                <Bar dataKey="Expenses" fill="#c9a84c" radius={[3,3,0,0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+          <div className={card}>
+            <div className={sl}>Monthly net profit — last 6 months</div>
+            <ResponsiveContainer width="100%" height={160}>
+              <BarChart data={netData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
+                <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} tickFormatter={v => `${Math.round(v/1000)}k`} />
+                <Tooltip formatter={fmtTooltip} contentStyle={{ fontSize: 12, border: '1px solid #e5e7eb' }} />
+                <Bar dataKey="Net" radius={[3,3,0,0]}>
+                  {netData.map((entry, i) => (
+                    <Cell key={i} fill={entry.Net >= 0 ? '#3a6b3c' : '#a32d2d'} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
+
       </div>
     </div>
   )
