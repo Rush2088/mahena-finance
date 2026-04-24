@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, Legend,
          PieChart, Pie } from 'recharts'
 import { INCOME_CATEGORIES, EXPENSE_CATEGORIES } from '../../utils/categories'
@@ -126,6 +126,17 @@ function getLast6Months() {
 export default function Dashboard({ transactions, loading }) {
   const months = getLast6Months()
   const [selectedMonthKey, setSelectedMonthKey] = useState(months[months.length - 1].key)
+
+  // Force Recharts to re-measure at print width before the browser renders the print layout
+  useEffect(() => {
+    const onBeforePrint = () => {
+      window.dispatchEvent(new Event('resize'))
+      // Give the charts a moment to re-render at the new width
+      setTimeout(() => window.dispatchEvent(new Event('resize')), 100)
+    }
+    window.addEventListener('beforeprint', onBeforePrint)
+    return () => window.removeEventListener('beforeprint', onBeforePrint)
+  }, [])
 
   const monthTxns = useMemo(() =>
     transactions.filter(t => t.date?.startsWith(selectedMonthKey)),
