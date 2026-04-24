@@ -11,3 +11,39 @@ body {
 #root {
   min-height: 100vh;
 }
+
+/* ── Print styles ─────────────────────────────── */
+@media print {
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  body { background: #fff !important; }
+
+  /* Hide everything except the dashboard print area */
+  .no-print { display: none !important; }
+
+  /* Show print-only elements */
+  .print-only { display: flex !important; }
+
+  /* Remove outer app padding/shadow */
+  body > div,
+  #root > div,
+  #root > div > div {
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    border-radius: 0 !important;
+  }
+
+  /* Dashboard print area fills the page */
+  #dashboard-print-area {
+    padding: 12px 16px !important;
+  }
+
+  /* Keep card borders and backgrounds visible */
+  .bg-white { background: #fff !important; }
+}

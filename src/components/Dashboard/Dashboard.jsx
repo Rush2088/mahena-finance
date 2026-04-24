@@ -20,7 +20,7 @@ function HBarChart({ data, maxVal }) {
         <div key={name} className="grid items-center gap-2" style={{ gridTemplateColumns: '120px 1fr 72px' }}>
           <div className="text-xs text-gray-500 text-right truncate">{name}</div>
           <div className="rounded h-3 overflow-hidden" style={{ background: '#f3f4f4' }}>
-            <div className="h-full rounded transition-all" style={{
+            <div className="h-full rounded" style={{
               width: maxVal > 0 ? `${Math.round((value / maxVal) * 100)}%` : '0%',
               background: CATEGORY_COLOR[name] || '#ccc'
             }} />
@@ -45,58 +45,6 @@ function getLast6Months() {
     result.push({ key, label: d.toLocaleDateString('en-GB', { month: 'short' }) })
   }
   return result
-}
-
-function printDashboard(monthTitle) {
-  const el = document.getElementById('dashboard-print-area')
-  if (!el) return
-  const printWindow = window.open('', '_blank')
-  printWindow.document.write(`
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <title>Ma'he'na Estate — Dashboard ${monthTitle}</title>
-      <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: system-ui, sans-serif; background: #fff; color: #1f2937; }
-        .print-header {
-          background: #1a3020; color: #f5edd8; padding: 12px 20px;
-          display: flex; justify-content: space-between; align-items: center;
-          margin-bottom: 16px;
-        }
-        .print-header .title { font-size: 15px; font-weight: 500; letter-spacing: 0.15em; }
-        .print-header .title span { color: #c9a84c; }
-        .print-header .sub { font-size: 10px; color: rgba(245,237,216,0.5); margin-top: 2px; letter-spacing: 0.1em; }
-        .print-header .right { text-align: right; font-size: 11px; color: rgba(245,237,216,0.7); }
-        .content { padding: 0 16px 16px; }
-        svg text { font-family: system-ui, sans-serif !important; }
-        @media print {
-          body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-        }
-      </style>
-    </head>
-    <body>
-      <div class="print-header">
-        <div>
-          <div class="title"><span>Ma'he'na</span> Estate</div>
-          <div class="sub">Finance Tracker</div>
-        </div>
-        <div class="right">
-          Dashboard — ${monthTitle}<br/>
-          Generated: ${new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}<br/>
-          Prepared by: R. Dahanayake
-        </div>
-      </div>
-      <div class="content">${el.innerHTML}</div>
-    </body>
-    </html>
-  `)
-  printWindow.document.close()
-  setTimeout(() => {
-    printWindow.focus()
-    printWindow.print()
-    printWindow.close()
-  }, 500)
 }
 
 export default function Dashboard({ transactions, loading }) {
@@ -155,8 +103,8 @@ export default function Dashboard({ transactions, loading }) {
   return (
     <div className="p-4 flex flex-col gap-3" style={{ background: '#f9fafb' }}>
 
-      {/* Toolbar */}
-      <div className="flex items-center justify-between">
+      {/* Toolbar — hidden on print */}
+      <div className="no-print flex items-center justify-between">
         <div className="flex items-center gap-2">
           <button onClick={() => {
             const i = months.findIndex(m => m.key === selectedMonthKey)
@@ -171,7 +119,7 @@ export default function Dashboard({ transactions, loading }) {
         <div className="flex items-center gap-3">
           <span className="text-xs text-gray-400">All figures in LKR</span>
           <button
-            onClick={() => printDashboard(currentMonthTitle)}
+            onClick={() => window.print()}
             className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded font-medium cursor-pointer border"
             style={{ background: '#fcebeb', borderColor: '#e24b4a', color: '#a32d2d' }}
           >
@@ -180,9 +128,25 @@ export default function Dashboard({ transactions, loading }) {
         </div>
       </div>
 
-      {loading && <div className="text-sm text-gray-400 text-center py-6">Loading…</div>}
+      {loading && <div className="text-sm text-gray-400 text-center py-6 no-print">Loading…</div>}
 
-      {/* Printable area */}
+      {/* Print header — hidden on screen, visible on print */}
+      <div className="print-only hidden items-center justify-between px-1 pb-3 mb-1"
+        style={{ borderBottom: '2px solid #1a3020' }}>
+        <div>
+          <div style={{ fontSize: 16, fontWeight: 600, letterSpacing: '0.15em', color: '#1a3020' }}>
+            <span style={{ color: '#c9a84c' }}>Ma'he'na</span> Estate
+          </div>
+          <div style={{ fontSize: 10, color: '#6b7280', marginTop: 2, letterSpacing: '0.1em' }}>Finance Tracker</div>
+        </div>
+        <div style={{ textAlign: 'right', fontSize: 11, color: '#6b7280', lineHeight: 1.6 }}>
+          <div style={{ fontWeight: 600, color: '#1f2937', fontSize: 13 }}>Dashboard — {currentMonthTitle}</div>
+          <div>Generated: {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}</div>
+          <div>Prepared by: R. Dahanayake &nbsp;·&nbsp; All figures in LKR</div>
+        </div>
+      </div>
+
+      {/* Printable content */}
       <div id="dashboard-print-area" className="flex flex-col gap-3">
 
         {/* Metric cards */}

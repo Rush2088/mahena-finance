@@ -1,7 +1,7 @@
 export default function TopBar({ activeTab, setActiveTab }) {
   const tabs = ['Dashboard', 'Transactions', 'Statements']
   return (
-    <div style={{ background: '#1a3020' }} className="flex items-center justify-between px-5 py-3">
+    <div className="no-print flex items-center justify-between px-5 py-3" style={{ background: '#1a3020' }}>
       <div>
         <div className="text-sm font-medium tracking-widest" style={{ color: '#f5edd8', letterSpacing: '0.2em' }}>
           <span style={{ color: '#c9a84c' }}>Ma'he'na</span> Estate
