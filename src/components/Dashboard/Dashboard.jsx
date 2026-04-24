@@ -248,7 +248,7 @@ export default function Dashboard({ transactions, loading }) {
           <div className={card}>
             <div className={sl}>6-month income vs expenses</div>
             <ResponsiveContainer width="100%" height={160}>
-              <BarChart data={trendData} barCategoryGap="30%" margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
+              <BarChart data={trendData} barCategoryGap="30%" margin={{ top: 4, right: 20, left: -20, bottom: 0 }}>
                 <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} tickFormatter={v => `${Math.round(v/1000)}k`} />
                 <Tooltip formatter={fmtTooltip} contentStyle={{ fontSize: 12, border: '1px solid #e5e7eb' }} />
@@ -261,7 +261,7 @@ export default function Dashboard({ transactions, loading }) {
           <div className={card}>
             <div className={sl}>Monthly net profit — last 6 months</div>
             <ResponsiveContainer width="100%" height={160}>
-              <BarChart data={netData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
+              <BarChart data={netData} margin={{ top: 4, right: 20, left: -20, bottom: 0 }}>
                 <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} tickFormatter={v => `${Math.round(v/1000)}k`} />
                 <Tooltip formatter={fmtTooltip} contentStyle={{ fontSize: 12, border: '1px solid #e5e7eb' }} />

@@ -8,6 +8,10 @@ export const fmtCurrency = (n) =>
 export const fmtShort = (n) =>
   'LKR ' + Number(n).toLocaleString('en-LK', { minimumFractionDigits: 0, maximumFractionDigits: 0 })
 
+// Number only — no LKR prefix (used in table rows where the column header already says LKR)
+export const fmtNumber = (n) =>
+  Number(n).toLocaleString('en-LK', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+
 export const fmtDate = (d) => {
   if (!d) return ''
   const date = new Date(d + 'T00:00:00')

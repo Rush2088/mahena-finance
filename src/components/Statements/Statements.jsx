@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import { INCOME_CATEGORIES, EXPENSE_CATEGORIES } from '../../utils/categories'
-import { fmtCurrency, fmtShort, monthLabel } from '../../utils/formatters'
+import { fmtCurrency, fmtNumber, fmtShort, monthLabel } from '../../utils/formatters'
 import { exportExcel } from './exportExcel'
 import { exportPDF }   from './exportPDF'
 
@@ -115,7 +115,7 @@ export default function Statements({ transactions }) {
                   </div>
                 </td>
                 <td className="px-6 py-1.5 text-right font-medium" style={{ color: amount > 0 ? '#3a6b3c' : '#9ca3af' }}>
-                  {amount > 0 ? fmtCurrency(amount) : '—'}
+                  {amount > 0 ? fmtNumber(amount) : '—'}
                 </td>
               </tr>
             ))}
@@ -137,7 +137,7 @@ export default function Statements({ transactions }) {
                   </div>
                 </td>
                 <td className="px-6 py-1.5 text-right font-medium" style={{ color: amount > 0 ? '#a32d2d' : '#9ca3af' }}>
-                  {amount > 0 ? fmtCurrency(amount) : '—'}
+                  {amount > 0 ? fmtNumber(amount) : '—'}
                 </td>
               </tr>
             ))}

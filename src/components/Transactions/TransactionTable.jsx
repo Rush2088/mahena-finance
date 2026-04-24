@@ -1,4 +1,4 @@
-import { fmtCurrency, fmtDate } from '../../utils/formatters'
+import { fmtNumber, fmtDate } from '../../utils/formatters'
 import { userLabel } from '../../utils/userLabels'
 
 const PAGE_SIZE = 10
@@ -43,7 +43,7 @@ export default function TransactionTable({ transactions, page, setPage, onEdit, 
                   <span className="text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-600">{txn.category}</span>
                 </td>
                 <td className="px-3 py-2 text-right whitespace-nowrap" style={amtStyle(txn.type)}>
-                  {txn.type === 'income' ? '+' : '–'} {fmtCurrency(txn.amount)}
+                  {txn.type === 'income' ? '+' : '–'} {fmtNumber(txn.amount)}
                 </td>
                 <td className="px-3 py-2 text-gray-400 max-w-xs truncate">{txn.notes || '—'}</td>
                 <td className="px-3 py-2 whitespace-nowrap">
