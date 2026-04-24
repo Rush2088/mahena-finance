@@ -1,45 +1,110 @@
 import { useState, useMemo } from 'react'
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, Legend } from 'recharts'
-import { INCOME_CATEGORIES, EXPENSE_CATEGORIES, CATEGORY_COLOR } from '../../utils/categories'
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, Legend,
+         PieChart, Pie } from 'recharts'
+import { INCOME_CATEGORIES, EXPENSE_CATEGORIES } from '../../utils/categories'
 import { fmtShort, fmtCurrency, monthLabel } from '../../utils/formatters'
 
+// ── Pastel colour palettes (75% opacity) ──────────────────────────────────────
+const INCOME_PASTELS = [
+  'rgba(134,200,150,0.75)',  // Coconut        — sage green
+  'rgba(255,183, 77,0.75)',  // King Coconut   — amber
+  'rgba(255,138,101,0.75)',  // Areca Nut      — coral
+  'rgba(174,137,194,0.75)',  // Pepper         — lavender
+  'rgba(100,181,246,0.75)',  // Cinnamon       — sky blue
+  'rgba(255,241,118,0.75)',  // Banana         — lemon
+  'rgba(128,203,196,0.75)',  // Garden Greens  — teal
+]
+
+const EXPENSE_PASTELS = [
+  'rgba(255,179,186,0.75)',  // Fertilizer             — pink
+  'rgba(255,210,161,0.75)',  // Weed Killer            — peach
+  'rgba(255,241,118,0.75)',  // Pesticide              — lemon
+  'rgba(167,219,170,0.75)',  // Labour – Maintenance   — mint
+  'rgba(130,196,212,0.75)',  // Labour – Harvesting    — sky
+  'rgba(210,186,255,0.75)',  // Electricity            — lavender
+  'rgba(255,186,230,0.75)',  // Council Rates          — rose
+  'rgba(186,230,255,0.75)',  // Equipment Maintenance  — powder blue
+  'rgba(255,218,185,0.75)',  // Security               — bisque
+  'rgba(204,204,255,0.75)',  // Miscellaneous          — periwinkle
+]
+
+// ── Pie breakdown component ────────────────────────────────────────────────────
+function PieBreakdown({ data, palette }) {
+  const active = data.filter(d => d.value > 0)
+  const total  = active.reduce((s, d) => s + d.value, 0)
+
+  if (active.length === 0) {
+    return <div className="flex items-center justify-center py-8 text-xs text-gray-400">No data this month</div>
+  }
+
+  const pieData = active.map((d, i) => ({
+    ...d,
+    fill: palette[data.indexOf(d) % palette.length],
+  }))
+
+  const CustomTooltip = ({ active, payload }) => {
+    if (!active || !payload?.length) return null
+    const { name, value } = payload[0].payload
+    return (
+      <div className="bg-white border border-gray-200 rounded px-3 py-1.5 shadow-sm text-xs">
+        <div className="font-medium text-gray-700">{name}</div>
+        <div className="text-gray-500">{fmtCurrency(value)}</div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex items-center gap-3 mt-2">
+      {/* Pie */}
+      <div style={{ width: 140, height: 140, flexShrink: 0 }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Pie
+              data={pieData}
+              dataKey="value"
+              nameKey="name"
+              cx="50%"
+              cy="50%"
+              outerRadius={62}
+              strokeWidth={1}
+              stroke="rgba(255,255,255,0.6)"
+            >
+              {pieData.map((entry, i) => (
+                <Cell key={i} fill={entry.fill} />
+              ))}
+            </Pie>
+            <Tooltip content={<CustomTooltip />} />
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* Legend */}
+      <div className="flex flex-col gap-1 overflow-y-auto" style={{ maxHeight: 140, flex: 1 }}>
+        {pieData.map((d, i) => {
+          const pct = total > 0 ? Math.round((d.value / total) * 100) : 0
+          return (
+            <div key={i} className="flex items-center gap-1.5 min-w-0">
+              <div className="rounded-full shrink-0" style={{ width: 8, height: 8, background: d.fill, border: '1px solid rgba(0,0,0,0.1)' }} />
+              <span className="text-xs text-gray-600 truncate flex-1">{d.name}</span>
+              <span className="text-xs text-gray-400 shrink-0">{pct}%</span>
+              <span className="text-xs font-medium shrink-0" style={{ color: '#555', minWidth: 56, textAlign: 'right' }}>
+                {fmtShort(d.value)}
+              </span>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+// ── Metric card ───────────────────────────────────────────────────────────────
 function MetricCard({ label, value, sub, color }) {
   return (
     <div className="rounded-lg p-3" style={{ background: '#f3f4f4' }}>
       <div className="text-xs text-gray-500 mb-1">{label}</div>
       <div className="text-xl font-medium" style={{ color }}>{value}</div>
       {sub && <div className="text-xs text-gray-400 mt-0.5">{sub}</div>}
-    </div>
-  )
-}
-
-function HBarChart({ data, maxVal, total }) {
-  return (
-    <div className="flex flex-col gap-1.5 mt-2">
-      {data.map(({ name, value }) => {
-        const pct = total > 0 ? Math.round((value / total) * 100) : 0
-        const barWidth = maxVal > 0 ? Math.round((value / maxVal) * 100) : 0
-        return (
-          <div key={name} className="grid items-center gap-2" style={{ gridTemplateColumns: '120px 1fr 72px' }}>
-            <div className="text-xs text-gray-500 text-right truncate">{name}</div>
-            <div className="rounded h-5 overflow-hidden relative" style={{ background: '#f3f4f4' }}>
-              <div className="h-full rounded" style={{
-                width: `${barWidth}%`,
-                background: CATEGORY_COLOR[name] || '#ccc'
-              }} />
-              {value > 0 && (
-                <span className="absolute left-1.5 top-0 bottom-0 flex items-center text-white font-medium"
-                  style={{ fontSize: 10, lineHeight: 1, textShadow: '0 0 3px rgba(0,0,0,0.3)' }}>
-                  {pct}%
-                </span>
-              )}
-            </div>
-            <div className="text-xs font-medium text-right" style={{ color: CATEGORY_COLOR[name] || '#999' }}>
-              {value > 0 ? fmtShort(value) : '—'}
-            </div>
-          </div>
-        )
-      })}
     </div>
   )
 }
@@ -57,6 +122,7 @@ function getLast6Months() {
   return result
 }
 
+// ── Main dashboard ─────────────────────────────────────────────────────────────
 export default function Dashboard({ transactions, loading }) {
   const months = getLast6Months()
   const [selectedMonthKey, setSelectedMonthKey] = useState(months[months.length - 1].key)
@@ -103,8 +169,6 @@ export default function Dashboard({ transactions, loading }) {
       return { label, Net: Math.round(inc - exp) }
     }), [transactions, months])
 
-  const maxIncome  = Math.max(...incomeByCategory.map(d => d.value), 1)
-  const maxExpense = Math.max(...expenseByCategory.map(d => d.value), 1)
   const card = "bg-white border border-gray-200 rounded-lg p-4"
   const sl   = "text-xs font-medium text-gray-400 uppercase tracking-wider mb-1"
   const fmtTooltip = (val) => fmtCurrency(val)
@@ -113,8 +177,8 @@ export default function Dashboard({ transactions, loading }) {
   return (
     <div className="p-4 flex flex-col gap-3" style={{ background: '#f9fafb' }}>
 
-      {/* Toolbar — hidden on print */}
-      <div className="no-print flex items-center justify-between">
+      {/* Toolbar */}
+      <div className="no-print flex items-center justify-between flex-wrap gap-2">
         <div className="flex items-center gap-2">
           <button onClick={() => {
             const i = months.findIndex(m => m.key === selectedMonthKey)
@@ -140,7 +204,7 @@ export default function Dashboard({ transactions, loading }) {
 
       {loading && <div className="text-sm text-gray-400 text-center py-6 no-print">Loading…</div>}
 
-      {/* Print header — hidden on screen, visible on print */}
+      {/* Print header */}
       <div className="print-only hidden items-center justify-between px-1 pb-3 mb-1"
         style={{ borderBottom: '2px solid #1a3020' }}>
         <div>
@@ -160,27 +224,27 @@ export default function Dashboard({ transactions, loading }) {
       <div id="dashboard-print-area" className="flex flex-col gap-3">
 
         {/* Metric cards */}
-        <div className="grid grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <MetricCard label="Total Income"   value={fmtShort(totalIncome)}  sub={`${monthTxns.filter(t=>t.type==='income').length} transactions`}  color="#3a6b3c" />
           <MetricCard label="Total Expenses" value={fmtShort(totalExpense)} sub={`${monthTxns.filter(t=>t.type==='expense').length} transactions`} color="#a32d2d" />
           <MetricCard label="Net Profit"     value={fmtShort(netProfit)}    sub="this month"   color={netProfit >= 0 ? '#185fa5' : '#a32d2d'} />
           <MetricCard label="Profit Margin"  value={`${margin}%`}           sub="of income"    color="#854f0b" />
         </div>
 
-        {/* Breakdown charts */}
-        <div className="grid grid-cols-2 gap-3">
+        {/* Pie charts */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className={card}>
             <div className={sl}>Income by subcategory</div>
-            <HBarChart data={incomeByCategory} maxVal={maxIncome} total={totalIncome} />
+            <PieBreakdown data={incomeByCategory} palette={INCOME_PASTELS} />
           </div>
           <div className={card}>
             <div className={sl}>Expenses by subcategory</div>
-            <HBarChart data={expenseByCategory} maxVal={maxExpense} total={totalExpense} />
+            <PieBreakdown data={expenseByCategory} palette={EXPENSE_PASTELS} />
           </div>
         </div>
 
         {/* Trend charts */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className={card}>
             <div className={sl}>6-month income vs expenses</div>
             <ResponsiveContainer width="100%" height={160}>
