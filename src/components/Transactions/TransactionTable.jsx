@@ -1,4 +1,5 @@
 import { fmtCurrency, fmtDate } from '../../utils/formatters'
+import { userLabel } from '../../utils/userLabels'
 
 const PAGE_SIZE = 10
 
@@ -19,7 +20,7 @@ export default function TransactionTable({ transactions, page, setPage, onEdit, 
         <table className="w-full border-collapse text-sm">
           <thead>
             <tr style={{ background: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
-              {['Date','Description','Type','Category','Amount (Rs)','Notes',''].map(h => (
+              {['Date','Description','Type','Category','Amount (LKR)','Notes','Entered By',''].map(h => (
                 <th key={h} className="text-left px-3 py-2.5 text-xs font-medium text-gray-500 uppercase tracking-wide whitespace-nowrap
                   last:text-right">{h}</th>
               ))}
@@ -27,7 +28,7 @@ export default function TransactionTable({ transactions, page, setPage, onEdit, 
           </thead>
           <tbody>
             {rows.length === 0 && (
-              <tr><td colSpan={7} className="text-center py-8 text-gray-400 text-sm">No transactions found</td></tr>
+              <tr><td colSpan={8} className="text-center py-8 text-gray-400 text-sm">No transactions found</td></tr>
             )}
             {rows.map(txn => (
               <tr key={txn.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
@@ -45,6 +46,11 @@ export default function TransactionTable({ transactions, page, setPage, onEdit, 
                   {txn.type === 'income' ? '+' : '–'} {fmtCurrency(txn.amount)}
                 </td>
                 <td className="px-3 py-2 text-gray-400 max-w-xs truncate">{txn.notes || '—'}</td>
+                <td className="px-3 py-2 whitespace-nowrap">
+                  <span className="text-xs px-2 py-0.5 rounded font-medium" style={{ background: '#f3f4f6', color: '#374151' }}>
+                    {userLabel(txn.entered_by)}
+                  </span>
+                </td>
                 <td className="px-3 py-2">
                   <div className="flex gap-1.5 justify-end">
                     <button onClick={() => onEdit(txn)}

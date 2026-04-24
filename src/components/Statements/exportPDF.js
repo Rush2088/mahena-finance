@@ -1,6 +1,8 @@
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 
+const fmt = (n) => `LKR ${Number(n).toLocaleString('en-LK', { minimumFractionDigits: 2 })}`
+
 export function exportPDF({ selectedLabel, periodStr, today, incomeRows, expenseRows, totalIncome, totalExpense, net, margin }) {
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
   const pageW = doc.internal.pageSize.getWidth()
@@ -35,9 +37,9 @@ export function exportPDF({ selectedLabel, periodStr, today, incomeRows, expense
     startY: 34,
     head: [['Income Category', 'Amount (LKR)']],
     body: [
-      ...incomeRows.map(r => [r.cat, r.amount > 0 ? `Rs ${Number(r.amount).toLocaleString('en-LK', { minimumFractionDigits: 2 })}` : '—']),
+      ...incomeRows.map(r => [r.cat, r.amount > 0 ? fmt(r.amount) : '—']),
       [{ content: 'Total Income', styles: { fontStyle: 'bold' } },
-       { content: `Rs ${Number(totalIncome).toLocaleString('en-LK', { minimumFractionDigits: 2 })}`, styles: { fontStyle: 'bold', textColor: [58, 107, 60] } }]
+       { content: fmt(totalIncome), styles: { fontStyle: 'bold', textColor: [58, 107, 60] } }]
     ],
     headStyles: { fillColor: [58, 107, 60], textColor: 255, fontStyle: 'bold', fontSize: 9 },
     bodyStyles: { fontSize: 9, textColor: [60, 60, 60] },
@@ -51,9 +53,9 @@ export function exportPDF({ selectedLabel, periodStr, today, incomeRows, expense
     startY: doc.lastAutoTable.finalY + 6,
     head: [['Expense Category', 'Amount (LKR)']],
     body: [
-      ...expenseRows.map(r => [r.cat, r.amount > 0 ? `Rs ${Number(r.amount).toLocaleString('en-LK', { minimumFractionDigits: 2 })}` : '—']),
+      ...expenseRows.map(r => [r.cat, r.amount > 0 ? fmt(r.amount) : '—']),
       [{ content: 'Total Expenses', styles: { fontStyle: 'bold' } },
-       { content: `Rs ${Number(totalExpense).toLocaleString('en-LK', { minimumFractionDigits: 2 })}`, styles: { fontStyle: 'bold', textColor: [163, 45, 45] } }]
+       { content: fmt(totalExpense), styles: { fontStyle: 'bold', textColor: [163, 45, 45] } }]
     ],
     headStyles: { fillColor: [163, 45, 45], textColor: 255, fontStyle: 'bold', fontSize: 9 },
     bodyStyles: { fontSize: 9, textColor: [60, 60, 60] },
@@ -70,7 +72,7 @@ export function exportPDF({ selectedLabel, periodStr, today, incomeRows, expense
   doc.setFont('helvetica', 'bold')
   doc.setTextColor(24, 95, 165)
   doc.text('Net Profit / (Loss)', 14, y + 7)
-  doc.text(`Rs ${Number(net).toLocaleString('en-LK', { minimumFractionDigits: 2 })}`, pageW - 14, y + 7, { align: 'right' })
+  doc.text(fmt(net), pageW - 14, y + 7, { align: 'right' })
   doc.setFontSize(8)
   doc.setFont('helvetica', 'normal')
   doc.setTextColor(59, 109, 17)

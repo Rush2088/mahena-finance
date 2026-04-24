@@ -11,7 +11,7 @@ import './index.css'
 export default function App() {
   const [activeTab, setActiveTab] = useState('Dashboard')
   const { session, loading: authLoading, signOut } = useAuth()
-  const txnData = useTransactions()
+  const txnData = useTransactions(session?.user?.email)
 
   // Still checking session
   if (authLoading) {

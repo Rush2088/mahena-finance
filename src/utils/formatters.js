@@ -3,10 +3,10 @@
 // ─────────────────────────────────────────────
 
 export const fmtCurrency = (n) =>
-  'Rs ' + Number(n).toLocaleString('en-LK', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  'LKR ' + Number(n).toLocaleString('en-LK', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
 export const fmtShort = (n) =>
-  'Rs ' + Number(n).toLocaleString('en-LK', { minimumFractionDigits: 0, maximumFractionDigits: 0 })
+  'LKR ' + Number(n).toLocaleString('en-LK', { minimumFractionDigits: 0, maximumFractionDigits: 0 })
 
 export const fmtDate = (d) => {
   if (!d) return ''

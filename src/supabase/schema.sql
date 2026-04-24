@@ -11,8 +11,12 @@ CREATE TABLE IF NOT EXISTS transactions (
   category    TEXT        NOT NULL,
   amount      NUMERIC(12,2) NOT NULL CHECK (amount >= 0),
   notes       TEXT,
+  entered_by  TEXT,
   created_at  TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- ── Run this if the table already exists (adds column without recreating) ──
+ALTER TABLE transactions ADD COLUMN IF NOT EXISTS entered_by TEXT;
 
 CREATE INDEX IF NOT EXISTS idx_transactions_date ON transactions(date DESC);
 CREATE INDEX IF NOT EXISTS idx_transactions_type ON transactions(type);

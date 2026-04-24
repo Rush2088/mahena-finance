@@ -1,4 +1,5 @@
 import * as XLSX from 'xlsx'
+import { userLabel } from '../../utils/userLabels'
 
 export function exportExcel({ selectedLabel, periodStr, incomeRows, expenseRows, totalIncome, totalExpense, net, margin }, allTxns) {
   const wb = XLSX.utils.book_new()
@@ -32,11 +33,11 @@ export function exportExcel({ selectedLabel, periodStr, incomeRows, expenseRows,
 
   // ── Sheet 2: Raw transactions ───────────────────
   const txnData = [
-    ['Date', 'Description', 'Type', 'Category', 'Amount (LKR)', 'Notes'],
-    ...allTxns.map(t => [t.date, t.description, t.type, t.category, Number(t.amount), t.notes || ''])
+    ['Date', 'Description', 'Type', 'Category', 'Amount (LKR)', 'Notes', 'Entered By'],
+    ...allTxns.map(t => [t.date, t.description, t.type, t.category, Number(t.amount), t.notes || '', userLabel(t.entered_by)])
   ]
   const ws2 = XLSX.utils.aoa_to_sheet(txnData)
-  ws2['!cols'] = [{ wch: 14 }, { wch: 36 }, { wch: 10 }, { wch: 24 }, { wch: 16 }, { wch: 28 }]
+  ws2['!cols'] = [{ wch: 14 }, { wch: 36 }, { wch: 10 }, { wch: 24 }, { wch: 16 }, { wch: 28 }, { wch: 14 }]
   XLSX.utils.book_append_sheet(wb, ws2, 'Transactions')
 
   XLSX.writeFile(wb, `Mahena_Estate_${selectedLabel.replace(/ /g, '_')}.xlsx`)

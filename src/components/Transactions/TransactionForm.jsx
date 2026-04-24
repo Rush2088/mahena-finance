@@ -72,7 +72,7 @@ export default function TransactionForm({ onSave, editingTxn, onCancelEdit }) {
           </select>
         </div>
         <div>
-          <label className={labelCls}>Amount (Rs)</label>
+          <label className={labelCls}>Amount (LKR)</label>
           <input type="number" className={inputCls} placeholder="0.00" min="0" step="0.01"
             value={form.amount} onChange={e => set('amount', e.target.value)} required />
         </div>
