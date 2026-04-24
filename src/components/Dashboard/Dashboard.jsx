@@ -13,23 +13,33 @@ function MetricCard({ label, value, sub, color }) {
   )
 }
 
-function HBarChart({ data, maxVal }) {
+function HBarChart({ data, maxVal, total }) {
   return (
     <div className="flex flex-col gap-1.5 mt-2">
-      {data.map(({ name, value }) => (
-        <div key={name} className="grid items-center gap-2" style={{ gridTemplateColumns: '120px 1fr 72px' }}>
-          <div className="text-xs text-gray-500 text-right truncate">{name}</div>
-          <div className="rounded h-3 overflow-hidden" style={{ background: '#f3f4f4' }}>
-            <div className="h-full rounded" style={{
-              width: maxVal > 0 ? `${Math.round((value / maxVal) * 100)}%` : '0%',
-              background: CATEGORY_COLOR[name] || '#ccc'
-            }} />
+      {data.map(({ name, value }) => {
+        const pct = total > 0 ? Math.round((value / total) * 100) : 0
+        const barWidth = maxVal > 0 ? Math.round((value / maxVal) * 100) : 0
+        return (
+          <div key={name} className="grid items-center gap-2" style={{ gridTemplateColumns: '120px 1fr 72px' }}>
+            <div className="text-xs text-gray-500 text-right truncate">{name}</div>
+            <div className="rounded h-5 overflow-hidden relative" style={{ background: '#f3f4f4' }}>
+              <div className="h-full rounded" style={{
+                width: `${barWidth}%`,
+                background: CATEGORY_COLOR[name] || '#ccc'
+              }} />
+              {value > 0 && (
+                <span className="absolute left-1.5 top-0 bottom-0 flex items-center text-white font-medium"
+                  style={{ fontSize: 10, lineHeight: 1, textShadow: '0 0 3px rgba(0,0,0,0.3)' }}>
+                  {pct}%
+                </span>
+              )}
+            </div>
+            <div className="text-xs font-medium text-right" style={{ color: CATEGORY_COLOR[name] || '#999' }}>
+              {value > 0 ? fmtShort(value) : '—'}
+            </div>
           </div>
-          <div className="text-xs font-medium text-right" style={{ color: CATEGORY_COLOR[name] || '#999' }}>
-            {value > 0 ? fmtShort(value) : '—'}
-          </div>
-        </div>
-      ))}
+        )
+      })}
     </div>
   )
 }
@@ -161,11 +171,11 @@ export default function Dashboard({ transactions, loading }) {
         <div className="grid grid-cols-2 gap-3">
           <div className={card}>
             <div className={sl}>Income by subcategory</div>
-            <HBarChart data={incomeByCategory} maxVal={maxIncome} />
+            <HBarChart data={incomeByCategory} maxVal={maxIncome} total={totalIncome} />
           </div>
           <div className={card}>
             <div className={sl}>Expenses by subcategory</div>
-            <HBarChart data={expenseByCategory} maxVal={maxExpense} />
+            <HBarChart data={expenseByCategory} maxVal={maxExpense} total={totalExpense} />
           </div>
         </div>
 

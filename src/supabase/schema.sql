@@ -14,15 +14,17 @@ CREATE TABLE IF NOT EXISTS transactions (
   created_at  TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Index for fast monthly queries
 CREATE INDEX IF NOT EXISTS idx_transactions_date ON transactions(date DESC);
 CREATE INDEX IF NOT EXISTS idx_transactions_type ON transactions(type);
 
--- Enable Row Level Security (optional but recommended)
 ALTER TABLE transactions ENABLE ROW LEVEL SECURITY;
 
--- Allow all operations for anonymous users (public app — no login)
-CREATE POLICY "Allow public access"
+-- ── Run this separately to update RLS to require login ──
+-- Drop old public policy first:
+DROP POLICY IF EXISTS "Allow public access" ON transactions;
+
+-- New policy: only authenticated (logged-in) users can access data
+CREATE POLICY "Allow authenticated access"
   ON transactions FOR ALL
-  USING (true)
-  WITH CHECK (true);
+  USING (auth.role() = 'authenticated')
+  WITH CHECK (auth.role() = 'authenticated');
