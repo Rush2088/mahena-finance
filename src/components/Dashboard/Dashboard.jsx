@@ -127,22 +127,16 @@ export default function Dashboard({ transactions, loading }) {
   const months = getLast6Months()
   const [selectedMonthKey, setSelectedMonthKey] = useState(months[months.length - 1].key)
 
-  // Recharts ResponsiveContainer freezes at screen width during print.
-  // Fix: shrink chart containers to print width first, wait for re-render, then print.
-  const handlePrint = () => {
-    const containers = document.querySelectorAll('.recharts-responsive-container')
-    // Set each container to the print column width so Recharts re-renders at that size
-    containers.forEach(el => { el.style.width = '440px' })
-    window.dispatchEvent(new Event('resize'))
-    setTimeout(() => {
-      window.print()
-      // Restore after print dialog closes
-      setTimeout(() => {
-        containers.forEach(el => { el.style.width = '' })
-        window.dispatchEvent(new Event('resize'))
-      }, 500)
-    }, 250)
-  }
+  // Force Recharts to re-measure at print width before the browser renders the print layout
+  useEffect(() => {
+    const onBeforePrint = () => {
+      window.dispatchEvent(new Event('resize'))
+      // Give the charts a moment to re-render at the new width
+      setTimeout(() => window.dispatchEvent(new Event('resize')), 100)
+    }
+    window.addEventListener('beforeprint', onBeforePrint)
+    return () => window.removeEventListener('beforeprint', onBeforePrint)
+  }, [])
 
   const monthTxns = useMemo(() =>
     transactions.filter(t => t.date?.startsWith(selectedMonthKey)),
@@ -210,7 +204,7 @@ export default function Dashboard({ transactions, loading }) {
         <div className="flex items-center gap-3">
           <span className="text-xs text-gray-400">All figures in LKR</span>
           <button
-            onClick={handlePrint}
+            onClick={() => window.print()}
             className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded font-medium cursor-pointer border"
             style={{ background: '#fcebeb', borderColor: '#e24b4a', color: '#a32d2d' }}
           >
