@@ -285,6 +285,15 @@ export default function Dashboard({ transactions, loading }) {
         </div>
 
       </div>
+
+      {/* Footer */}
+      <div className="px-4 py-2 border-t border-gray-100 text-right" style={{ background: '#f9fafb' }}>
+        <a href="https://rush2088.github.io/mahena-estate/" target="_blank" rel="noopener noreferrer"
+           className="text-xs text-gray-400 hover:text-gray-600 transition-colors">
+          Ma'he'na Estate ↗
+        </a>
+      </div>
+
     </div>
   )
 }
