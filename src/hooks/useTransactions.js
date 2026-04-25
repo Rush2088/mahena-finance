@@ -4,7 +4,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../supabase/client'
 
-export function useTransactions(userEmail) {
+export function useTransactions(userEmail, ready = false) {
   const [transactions, setTransactions] = useState([])
   const [loading, setLoading]           = useState(true)
   const [error, setError]               = useState(null)
@@ -21,7 +21,7 @@ export function useTransactions(userEmail) {
     setLoading(false)
   }, [])
 
-  useEffect(() => { fetchAll() }, [fetchAll])
+  useEffect(() => { if (ready) fetchAll() }, [fetchAll, ready])
 
   const addTransaction = async (txn) => {
     const payload = { ...txn, entered_by: userEmail || null }

@@ -16,15 +16,14 @@ const INCOME_PASTELS = [
 ]
 
 const EXPENSE_PASTELS = [
-  'rgba(255,179,186,0.75)',  // Fertilizer             — pink
-  'rgba(255,210,161,0.75)',  // Weed Killer            — peach
-  'rgba(255,241,118,0.75)',  // Pesticide              — lemon
-  'rgba(167,219,170,0.75)',  // Labour – Maintenance   — mint
-  'rgba(130,196,212,0.75)',  // Labour – Harvesting    — sky
-  'rgba(210,186,255,0.75)',  // Utilities              — lavender
-  'rgba(186,230,255,0.75)',  // Equipment Maintenance  — powder blue
-  'rgba(255,218,185,0.75)',  // Security               — bisque
-  'rgba(204,204,255,0.75)',  // Miscellaneous          — periwinkle
+  'rgba(255,179,186,0.75)',  // Fertilizer           — pink
+  'rgba(255,210,161,0.75)',  // Pest & Weed Control  — peach
+  'rgba(167,219,170,0.75)',  // Labour – Maintenance — mint
+  'rgba(130,196,212,0.75)',  // Labour – Harvesting  — sky
+  'rgba(210,186,255,0.75)',  // Utilities            — lavender
+  'rgba(186,230,255,0.75)',  // Equipment            — powder blue
+  'rgba(255,218,185,0.75)',  // Security             — bisque
+  'rgba(204,204,255,0.75)',  // Miscellaneous        — periwinkle
 ]
 
 // ── Pie breakdown component ────────────────────────────────────────────────────

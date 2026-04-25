@@ -14,12 +14,11 @@ export const INCOME_CATEGORIES = [
 
 export const EXPENSE_CATEGORIES = [
   'Fertilizer',
-  'Weed Killer',
-  'Pesticide',
+  'Pest & Weed Control',
   'Labour – Maintenance',
   'Labour – Harvesting',
   'Utilities',
-  'Equipment Maintenance',
+  'Equipment',
   'Security',
   'Miscellaneous',
 ]
@@ -37,12 +36,11 @@ export const CATEGORY_COLOR = {
   'Garden Greens':  '#a0d0a0',
   // expenses — reds
   'Fertilizer':           '#a32d2d',
-  'Weed Killer':          '#b84040',
-  'Pesticide':            '#c96060',
-  'Labour – Maintenance': '#d47070',
-  'Labour – Harvesting':  '#dd8585',
-  'Utilities':            '#e69898',
-  'Equipment Maintenance':'#edadad',
+  'Pest & Weed Control':  '#b84040',
+  'Labour – Maintenance': '#c96060',
+  'Labour – Harvesting':  '#d47070',
+  'Utilities':            '#dd8585',
+  'Equipment':            '#e69898',
   'Security':             '#f2c0c0',
   'Miscellaneous':        '#f5d0d0',
 }
