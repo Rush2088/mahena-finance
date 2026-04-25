@@ -35,9 +35,11 @@ export function useTransactions(userEmail, ready = false) {
   }
 
   const updateTransaction = async (id, updates) => {
+    // Strip fields that must not be overwritten (primary key, audit cols)
+    const { id: _id, created_at, entered_by, ...safeUpdates } = updates
     const { data, error } = await supabase
       .from('transactions')
-      .update(updates)
+      .update(safeUpdates)
       .eq('id', id)
       .select()
     if (error) { setError(error.message); return null }
