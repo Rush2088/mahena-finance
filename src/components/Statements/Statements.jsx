@@ -104,7 +104,8 @@ export default function Statements({ transactions }) {
           {/* INCOME */}
           <tbody>
             <tr style={{ background: '#f9fafb', borderLeft: '3px solid #3a6b3c', borderTop: '1px solid #e5e7eb', borderBottom: '1px solid #e5e7eb' }}>
-              <td className="px-6 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider" colSpan={3}>Income</td>
+              <td className="px-6 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider" colSpan={2}>Income</td>
+              <td className="px-6 py-2 text-xs font-medium text-right" style={{ color: '#3a6b3c' }}>LKR</td>
             </tr>
             {incomeRows.map(({ cat, amount }) => (
               <tr key={cat} className="border-b border-gray-50 hover:bg-gray-50">
@@ -121,12 +122,13 @@ export default function Statements({ transactions }) {
             ))}
             <tr style={{ background: '#f9fafb', borderTop: '1px solid #d1d5db' }}>
               <td className="px-6 py-2 text-sm font-medium text-gray-700" colSpan={2}>Total Income</td>
-              <td className="px-6 py-2 text-right font-medium" style={{ color: '#3a6b3c' }}>{fmtCurrency(totalIncome)}</td>
+              <td className="px-6 py-2 text-right font-medium" style={{ color: '#3a6b3c' }}>{fmtNumber(totalIncome)}</td>
             </tr>
 
             {/* EXPENSES */}
             <tr style={{ background: '#f9fafb', borderLeft: '3px solid #a32d2d', borderTop: '1px solid #e5e7eb', borderBottom: '1px solid #e5e7eb' }}>
-              <td className="px-6 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider" colSpan={3}>Expenses</td>
+              <td className="px-6 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider" colSpan={2}>Expenses</td>
+              <td className="px-6 py-2 text-xs font-medium text-right" style={{ color: '#a32d2d' }}>LKR</td>
             </tr>
             {expenseRows.map(({ cat, amount }) => (
               <tr key={cat} className="border-b border-gray-50 hover:bg-gray-50">
@@ -143,7 +145,7 @@ export default function Statements({ transactions }) {
             ))}
             <tr style={{ background: '#f9fafb', borderTop: '1px solid #d1d5db' }}>
               <td className="px-6 py-2 text-sm font-medium text-gray-700" colSpan={2}>Total Expenses</td>
-              <td className="px-6 py-2 text-right font-medium" style={{ color: '#a32d2d' }}>{fmtCurrency(totalExpense)}</td>
+              <td className="px-6 py-2 text-right font-medium" style={{ color: '#a32d2d' }}>{fmtNumber(totalExpense)}</td>
             </tr>
 
             {/* NET */}
