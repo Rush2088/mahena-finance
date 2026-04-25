@@ -21,8 +21,7 @@ const EXPENSE_PASTELS = [
   'rgba(255,241,118,0.75)',  // Pesticide              — lemon
   'rgba(167,219,170,0.75)',  // Labour – Maintenance   — mint
   'rgba(130,196,212,0.75)',  // Labour – Harvesting    — sky
-  'rgba(210,186,255,0.75)',  // Electricity            — lavender
-  'rgba(255,186,230,0.75)',  // Council Rates          — rose
+  'rgba(210,186,255,0.75)',  // Utilities              — lavender
   'rgba(186,230,255,0.75)',  // Equipment Maintenance  — powder blue
   'rgba(255,218,185,0.75)',  // Security               — bisque
   'rgba(204,204,255,0.75)',  // Miscellaneous          — periwinkle
