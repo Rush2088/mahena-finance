@@ -70,7 +70,7 @@ export default function OperationsForm({ onSave, editingEntry, onCancelEdit, def
           <label className={labelCls}>Category</label>
           <select className={inputCls} value={form.crop} onChange={e => set('crop', e.target.value)} required>
             {OPERATIONS_CATEGORIES.map(c => (
-              <option key={c}>{CATEGORY_EMOJI[c] ? `${CATEGORY_EMOJI[c]} ${c}` : c}</option>
+              <option key={c} value={c}>{CATEGORY_EMOJI[c] ? `${CATEGORY_EMOJI[c]} ${c}` : c}</option>
             ))}
           </select>
         </div>
