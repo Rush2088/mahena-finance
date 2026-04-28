@@ -56,7 +56,8 @@ export default function OperationsForm({ onSave, editingEntry, onCancelEdit, def
         </span>
       </div>
 
-      <div className="grid grid-cols-6 gap-2 items-start">
+      {/* Responsive grid: 1 col on mobile, 6 cols on desktop */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 items-start">
 
         {/* Date */}
         <div>
@@ -75,7 +76,7 @@ export default function OperationsForm({ onSave, editingEntry, onCancelEdit, def
           </select>
         </div>
 
-        {/* Sub Category — options change based on category */}
+        {/* Sub Category */}
         <div>
           <label className={labelCls}>Sub Category</label>
           <select className={inputCls} value={form.sub_category}
@@ -85,16 +86,16 @@ export default function OperationsForm({ onSave, editingEntry, onCancelEdit, def
           </select>
         </div>
 
-        {/* Description — spans 2 cols */}
-        <div className="col-span-2">
+        {/* Description — full width on mobile, 2 cols on desktop */}
+        <div className="col-span-2 sm:col-span-3 lg:col-span-2">
           <label className={labelCls}>Description</label>
           <textarea rows={3} className={inputCls} style={{ resize: 'vertical', minHeight: 72 }}
             placeholder="Describe the activity in detail…"
             value={form.activity} onChange={e => set('activity', e.target.value)} required />
         </div>
 
-        {/* Notes */}
-        <div>
+        {/* Notes — full width on mobile */}
+        <div className="col-span-2 sm:col-span-3 lg:col-span-1">
           <label className={labelCls}>Notes</label>
           <textarea rows={3} className={inputCls} style={{ resize: 'vertical', minHeight: 72 }}
             placeholder="Optional…"
