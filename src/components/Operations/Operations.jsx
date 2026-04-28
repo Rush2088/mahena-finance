@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useOperations } from '../../hooks/useOperations'
 import OperationsForm from './OperationsForm'
 import OperationsTable from './OperationsTable'
+import { exportOperationsPDF } from './exportOperationsPDF'
 
 export const OPERATIONS_CATEGORIES = [
   'Coconut',
@@ -47,6 +48,9 @@ export default function Operations({ userEmail, ready }) {
     setPage(1)
   }
 
+  const today = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })
+  const handleExportPDF = () => exportOperationsPDF({ entries, categoryFilter, today })
+
   return (
     <div className="p-4 flex flex-col gap-3" style={{ background: '#f9fafb', minHeight: 500 }}>
 
@@ -75,12 +79,19 @@ export default function Operations({ userEmail, ready }) {
       </div>
 
       {/* Section header */}
-      <div className="flex items-center gap-2">
-        <span className="text-base">{categoryFilter === 'all' ? '🌾' : (CATEGORY_EMOJI[categoryFilter] || '🌱')}</span>
-        <span className="text-sm font-medium text-gray-700">Operations Journal</span>
-        <span className="text-xs text-gray-400 ml-1">
-          ({entries.length} {entries.length === 1 ? 'entry' : 'entries'})
-        </span>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="text-base">{categoryFilter === 'all' ? '🌾' : (CATEGORY_EMOJI[categoryFilter] || '🌱')}</span>
+          <span className="text-sm font-medium text-gray-700">Operations Journal</span>
+          <span className="text-xs text-gray-400 ml-1">
+            ({entries.length} {entries.length === 1 ? 'entry' : 'entries'})
+          </span>
+        </div>
+        <button onClick={handleExportPDF} disabled={entries.length === 0}
+          className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded font-medium cursor-pointer disabled:opacity-40"
+          style={{ background: '#fcebeb', border: '1px solid #e24b4a', color: '#a32d2d' }}>
+          ⬇ Export PDF
+        </button>
       </div>
 
       {error && (
