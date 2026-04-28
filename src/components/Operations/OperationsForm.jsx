@@ -54,7 +54,6 @@ export default function OperationsForm({ onSave, editingEntry, onCancelEdit, def
         </span>
       </div>
 
-      {/* Row: date | category | sub-category | description | notes */}
       <div className="grid grid-cols-6 gap-2 items-start">
 
         {/* Date */}
@@ -64,7 +63,7 @@ export default function OperationsForm({ onSave, editingEntry, onCancelEdit, def
             onChange={e => set('date', e.target.value)} required />
         </div>
 
-        {/* Category (was "Crop") */}
+        {/* Category */}
         <div>
           <label className={labelCls}>Category</label>
           <select className={inputCls} value={form.crop} onChange={e => set('crop', e.target.value)} required>
@@ -74,20 +73,20 @@ export default function OperationsForm({ onSave, editingEntry, onCancelEdit, def
           </select>
         </div>
 
-        {/* Sub-category — only for Maintenance */}
-        <div>
-          <label className={labelCls}>Sub Category</label>
-          {isMaintenance ? (
+        {/* Sub Category — only shown for Maintenance */}
+        {isMaintenance ? (
+          <div>
+            <label className={labelCls}>Sub Category</label>
             <select className={inputCls} value={form.sub_category}
               onChange={e => set('sub_category', e.target.value)} required>
               <option value="">Select…</option>
               {MAINTENANCE_SUBCATEGORIES.map(s => <option key={s}>{s}</option>)}
             </select>
-          ) : (
-            <input className={inputCls} value="—" disabled
-              style={{ color: '#d1d5db', background: '#f9fafb' }} />
-          )}
-        </div>
+          </div>
+        ) : (
+          /* Keep grid alignment — invisible placeholder */
+          <div />
+        )}
 
         {/* Description — spans 2 cols */}
         <div className="col-span-2">

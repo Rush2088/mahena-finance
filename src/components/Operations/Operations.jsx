@@ -104,7 +104,7 @@ export default function Operations({ userEmail, ready }) {
             setPage={setPage}
             onEdit={setEditingEntry}
             onDelete={deleteEntry}
-            showCategory={categoryFilter === 'all'}
+            showSubCategory={categoryFilter === 'all' || categoryFilter === 'Maintenance'}
           />
       }
     </div>

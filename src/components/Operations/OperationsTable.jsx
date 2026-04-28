@@ -4,7 +4,7 @@ import { CATEGORY_EMOJI } from './Operations'
 
 const PAGE_SIZE = 15
 
-export default function OperationsTable({ entries, page, setPage, onEdit, onDelete, showCategory }) {
+export default function OperationsTable({ entries, page, setPage, onEdit, onDelete, showSubCategory }) {
   const totalPages = Math.max(1, Math.ceil(entries.length / PAGE_SIZE))
   const paged      = entries.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
@@ -22,10 +22,10 @@ export default function OperationsTable({ entries, page, setPage, onEdit, onDele
         <thead>
           <tr style={{ background: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
             <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 w-28">Date</th>
-            {showCategory && (
-              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 w-32">Category</th>
+            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 w-32">Category</th>
+            {showSubCategory && (
+              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 w-28">Sub Category</th>
             )}
-            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 w-28">Sub Category</th>
             <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Description</th>
             <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 w-40">Notes</th>
             <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 w-16">By</th>
@@ -36,14 +36,14 @@ export default function OperationsTable({ entries, page, setPage, onEdit, onDele
           {paged.map(entry => (
             <tr key={entry.id} className="border-b border-gray-50 hover:bg-gray-50">
               <td className="px-4 py-2 text-gray-500 whitespace-nowrap">{fmtDate(entry.date)}</td>
-              {showCategory && (
-                <td className="px-4 py-2 text-gray-600 whitespace-nowrap text-xs">
-                  {CATEGORY_EMOJI[entry.crop] || '🌱'} {entry.crop}
+              <td className="px-4 py-2 text-gray-600 whitespace-nowrap text-xs">
+                {CATEGORY_EMOJI[entry.crop] || '🌱'} {entry.crop}
+              </td>
+              {showSubCategory && (
+                <td className="px-4 py-2 text-gray-500 text-xs whitespace-nowrap">
+                  {entry.sub_category || '—'}
                 </td>
               )}
-              <td className="px-4 py-2 text-gray-500 text-xs whitespace-nowrap">
-                {entry.sub_category || '—'}
-              </td>
               <td className="px-4 py-2 text-gray-700" style={{ whiteSpace: 'pre-wrap', maxWidth: 340 }}>
                 {entry.activity}
               </td>
