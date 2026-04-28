@@ -21,20 +21,19 @@ export default function OperationsTable({ entries, page, setPage, onEdit, onDele
   return (
     <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
 
-      {/* Horizontally scrollable table wrapper */}
       <div className="overflow-x-auto">
-        <table className="border-collapse text-sm" style={{ minWidth: 640 }}>
+        <table className="w-full border-collapse text-sm">
           <thead>
             <tr style={{ background: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
-              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 whitespace-nowrap" style={{ minWidth: 100 }}>Date</th>
-              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 whitespace-nowrap" style={{ minWidth: 120 }}>Category</th>
+              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 whitespace-nowrap">Date</th>
+              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 whitespace-nowrap">Category</th>
               {showSubCategory && (
-                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 whitespace-nowrap" style={{ minWidth: 110 }}>Sub Category</th>
+                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 whitespace-nowrap">Sub Category</th>
               )}
-              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500" style={{ minWidth: 200 }}>Description</th>
-              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500" style={{ minWidth: 140 }}>Notes</th>
-              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 whitespace-nowrap" style={{ minWidth: 56 }}>By</th>
-              <th className="px-4 py-2" style={{ minWidth: 80 }}></th>
+              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Description</th>
+              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Notes</th>
+              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 whitespace-nowrap">By</th>
+              <th className="px-4 py-2"></th>
             </tr>
           </thead>
           <tbody>
