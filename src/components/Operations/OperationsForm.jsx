@@ -3,6 +3,7 @@ import { todayISO } from '../../utils/formatters'
 import { OPERATIONS_CATEGORIES, CATEGORY_EMOJI } from './Operations'
 
 const MAINTENANCE_SUBCATEGORIES = ['House', 'Land', 'Equipment', 'Other']
+const FRUIT_SUBCATEGORIES       = ['Harvest', 'Planting', 'Fertilizer', 'Other']
 
 const makeEmpty = (cat) => ({
   date:         todayISO(),
@@ -31,7 +32,8 @@ export default function OperationsForm({ onSave, editingEntry, onCancelEdit, def
     return updated
   })
 
-  const isMaintenance = form.crop === 'Maintenance'
+  const isMaintenance  = form.crop === 'Maintenance'
+  const subCategories  = isMaintenance ? MAINTENANCE_SUBCATEGORIES : FRUIT_SUBCATEGORIES
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -73,20 +75,15 @@ export default function OperationsForm({ onSave, editingEntry, onCancelEdit, def
           </select>
         </div>
 
-        {/* Sub Category — only shown for Maintenance */}
-        {isMaintenance ? (
-          <div>
-            <label className={labelCls}>Sub Category</label>
-            <select className={inputCls} value={form.sub_category}
-              onChange={e => set('sub_category', e.target.value)} required>
-              <option value="">Select…</option>
-              {MAINTENANCE_SUBCATEGORIES.map(s => <option key={s}>{s}</option>)}
-            </select>
-          </div>
-        ) : (
-          /* Keep grid alignment — invisible placeholder */
-          <div />
-        )}
+        {/* Sub Category — options change based on category */}
+        <div>
+          <label className={labelCls}>Sub Category</label>
+          <select className={inputCls} value={form.sub_category}
+            onChange={e => set('sub_category', e.target.value)} required>
+            <option value="">Select…</option>
+            {subCategories.map(s => <option key={s}>{s}</option>)}
+          </select>
+        </div>
 
         {/* Description — spans 2 cols */}
         <div className="col-span-2">
