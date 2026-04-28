@@ -3,6 +3,7 @@ import TopBar from './components/Layout/TopBar'
 import Dashboard from './components/Dashboard/Dashboard'
 import Transactions from './components/Transactions/Transactions'
 import Statements from './components/Statements/Statements'
+import Operations from './components/Operations/Operations'
 import Login from './components/Auth/Login'
 import { useTransactions } from './hooks/useTransactions'
 import { useAuth } from './hooks/useAuth'
@@ -38,6 +39,7 @@ export default function App() {
         {activeTab === 'Dashboard'    && <Dashboard    {...txnData} />}
         {activeTab === 'Transactions' && <Transactions {...txnData} />}
         {activeTab === 'Statements'   && <Statements   {...txnData} />}
+        {activeTab === 'Operations'   && <Operations   userEmail={session.user.email} ready={!authLoading && !!session} />}
       </div>
     </div>
   )

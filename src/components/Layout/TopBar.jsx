@@ -1,5 +1,5 @@
 export default function TopBar({ activeTab, setActiveTab, userEmail, onSignOut }) {
-  const tabs = ['Dashboard', 'Transactions', 'Statements']
+  const tabs = ['Dashboard', 'Transactions', 'Statements', 'Operations']
   return (
     <div className="no-print flex items-center justify-between px-3 py-2 gap-2 flex-wrap" style={{ background: '#1a3020' }}>
 
