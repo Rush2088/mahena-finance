@@ -4,7 +4,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../supabase/client'
 
-export function useOperations(userEmail, cropFilter, ready = false) {
+export function useOperations(userEmail, categoryFilter, ready = false) {
   const [entries, setEntries]   = useState([])
   const [loading, setLoading]   = useState(true)
   const [error, setError]       = useState(null)
@@ -16,14 +16,14 @@ export function useOperations(userEmail, cropFilter, ready = false) {
       .from('operations_journal')
       .select('*')
       .order('date', { ascending: false })
-    if (cropFilter && cropFilter !== 'all') {
-      query = query.eq('crop', cropFilter)
+    if (categoryFilter && categoryFilter !== 'all') {
+      query = query.eq('crop', categoryFilter)
     }
     const { data, error } = await query
     if (error) setError(error.message)
     else setEntries(data || [])
     setLoading(false)
-  }, [cropFilter])
+  }, [categoryFilter])
 
   useEffect(() => { if (ready) fetchAll() }, [fetchAll, ready])
 
@@ -47,8 +47,8 @@ export function useOperations(userEmail, cropFilter, ready = false) {
       .eq('id', id)
       .select()
     if (error) { setError(error.message); return null }
-    // If a crop filter is active and the crop changed, remove from local list
-    if (cropFilter && cropFilter !== 'all' && data[0].crop !== cropFilter) {
+    // Remove from local list if category changed and a filter is active
+    if (categoryFilter && categoryFilter !== 'all' && data[0].crop !== categoryFilter) {
       setEntries(prev => prev.filter(e => e.id !== id))
     } else {
       setEntries(prev => prev.map(e => e.id === id ? data[0] : e))

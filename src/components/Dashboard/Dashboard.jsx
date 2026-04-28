@@ -255,7 +255,7 @@ export default function Dashboard({ transactions, loading }) {
         {/* Trend charts */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className={card}>
-            <div className={sl}>6-month income vs expenses</div>
+            <div className={sl}>Monthly Income vs Expenses</div>
             <ResponsiveContainer width="100%" height={160}>
               <BarChart data={trendData} barCategoryGap="30%" margin={{ top: 4, right: 20, left: -20, bottom: 0 }}>
                 <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
@@ -268,7 +268,7 @@ export default function Dashboard({ transactions, loading }) {
             </ResponsiveContainer>
           </div>
           <div className={card}>
-            <div className={sl}>Monthly net profit — last 6 months</div>
+            <div className={sl}>Monthly Net Profit</div>
             <ResponsiveContainer width="100%" height={160}>
               <BarChart data={netData} margin={{ top: 4, right: 20, left: -20, bottom: 0 }}>
                 <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} />

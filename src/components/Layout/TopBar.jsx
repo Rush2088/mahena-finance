@@ -9,7 +9,7 @@ export default function TopBar({ activeTab, setActiveTab, userEmail, onSignOut }
           <span style={{ color: '#c9a84c' }}>Ma'he'na</span> Estate
         </div>
         <div className="text-xs mt-0.5" style={{ color: 'rgba(245,237,216,0.4)', letterSpacing: '0.15em' }}>
-          Finance Tracker
+          Finance &amp; Operations
         </div>
       </div>
 

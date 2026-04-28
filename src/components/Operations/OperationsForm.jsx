@@ -1,38 +1,46 @@
 import { useState } from 'react'
-import { INCOME_CATEGORIES } from '../../utils/categories'
 import { todayISO } from '../../utils/formatters'
+import { OPERATIONS_CATEGORIES, CATEGORY_EMOJI } from './Operations'
 
-const ACTIVITY_CATEGORIES = ['Harvest', 'Fertilizer', 'Maintenance', 'Planting']
+const MAINTENANCE_SUBCATEGORIES = ['House', 'Land', 'Equipment', 'Other']
 
-const makeEmpty = (crop) => ({
-  date: todayISO(),
-  crop: crop || INCOME_CATEGORIES[0],
-  activity: '',
-  category: 'Harvest',
-  notes: '',
+const makeEmpty = (cat) => ({
+  date:         todayISO(),
+  crop:         (cat && cat !== 'all') ? cat : OPERATIONS_CATEGORIES[0],
+  sub_category: '',
+  activity:     '',
+  notes:        '',
 })
 
-export default function OperationsForm({ onSave, editingEntry, onCancelEdit, defaultCrop }) {
-  const [form, setForm]     = useState(editingEntry || makeEmpty(defaultCrop))
+export default function OperationsForm({ onSave, editingEntry, onCancelEdit, defaultCategory }) {
+  const [form, setForm]     = useState(editingEntry || makeEmpty(defaultCategory))
   const [saving, setSaving] = useState(false)
   const isEditing           = !!editingEntry
 
-  // Sync when editingEntry changes (edit button clicked)
+  // Sync when editingEntry changes
   if (editingEntry && editingEntry.id !== form.id) setForm(editingEntry)
-  // Sync default crop when filter changes (only for new entries)
-  if (!editingEntry && defaultCrop && defaultCrop !== 'all' && form.crop !== defaultCrop && !form.id) {
-    setForm(prev => ({ ...prev, crop: defaultCrop }))
+  // Sync default category for new entries when filter changes
+  if (!editingEntry && !form.id && defaultCategory && defaultCategory !== 'all' && form.crop !== defaultCategory) {
+    setForm(prev => ({ ...prev, crop: defaultCategory, sub_category: '' }))
   }
 
-  const set = (field, val) => setForm(prev => ({ ...prev, [field]: val }))
+  const set = (field, val) => setForm(prev => {
+    const updated = { ...prev, [field]: val }
+    // Clear sub_category when switching away from Maintenance
+    if (field === 'crop' && val !== 'Maintenance') updated.sub_category = ''
+    return updated
+  })
+
+  const isMaintenance = form.crop === 'Maintenance'
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (!form.activity.trim() || !form.date || !form.crop) return
+    if (isMaintenance && !form.sub_category) return
     setSaving(true)
     await onSave({ ...form })
     setSaving(false)
-    if (!isEditing) setForm(makeEmpty(defaultCrop !== 'all' ? defaultCrop : form.crop))
+    if (!isEditing) setForm(makeEmpty(defaultCategory !== 'all' ? defaultCategory : form.crop))
   }
 
   const inputCls = "w-full border border-gray-200 rounded px-2.5 py-1.5 text-sm text-gray-800 bg-white focus:outline-none focus:border-gray-400"
@@ -46,7 +54,9 @@ export default function OperationsForm({ onSave, editingEntry, onCancelEdit, def
         </span>
       </div>
 
+      {/* Row: date | category | sub-category | description | notes */}
       <div className="grid grid-cols-6 gap-2 items-start">
+
         {/* Date */}
         <div>
           <label className={labelCls}>Date</label>
@@ -54,37 +64,47 @@ export default function OperationsForm({ onSave, editingEntry, onCancelEdit, def
             onChange={e => set('date', e.target.value)} required />
         </div>
 
-        {/* Crop */}
+        {/* Category (was "Crop") */}
         <div>
-          <label className={labelCls}>Crop</label>
+          <label className={labelCls}>Category</label>
           <select className={inputCls} value={form.crop} onChange={e => set('crop', e.target.value)} required>
-            {INCOME_CATEGORIES.map(c => <option key={c}>{c}</option>)}
+            {OPERATIONS_CATEGORIES.map(c => (
+              <option key={c}>{CATEGORY_EMOJI[c] ? `${CATEGORY_EMOJI[c]} ${c}` : c}</option>
+            ))}
           </select>
         </div>
 
-        {/* Activity description — spans 2 columns, textarea 3 rows */}
+        {/* Sub-category — only for Maintenance */}
+        <div>
+          <label className={labelCls}>Sub Category</label>
+          {isMaintenance ? (
+            <select className={inputCls} value={form.sub_category}
+              onChange={e => set('sub_category', e.target.value)} required>
+              <option value="">Select…</option>
+              {MAINTENANCE_SUBCATEGORIES.map(s => <option key={s}>{s}</option>)}
+            </select>
+          ) : (
+            <input className={inputCls} value="—" disabled
+              style={{ color: '#d1d5db', background: '#f9fafb' }} />
+          )}
+        </div>
+
+        {/* Description — spans 2 cols */}
         <div className="col-span-2">
-          <label className={labelCls}>Activity Description</label>
+          <label className={labelCls}>Description</label>
           <textarea rows={3} className={inputCls} style={{ resize: 'vertical', minHeight: 72 }}
             placeholder="Describe the activity in detail…"
             value={form.activity} onChange={e => set('activity', e.target.value)} required />
-        </div>
-
-        {/* Category */}
-        <div>
-          <label className={labelCls}>Category</label>
-          <select className={inputCls} value={form.category} onChange={e => set('category', e.target.value)}>
-            {ACTIVITY_CATEGORIES.map(c => <option key={c}>{c}</option>)}
-          </select>
         </div>
 
         {/* Notes */}
         <div>
           <label className={labelCls}>Notes</label>
           <textarea rows={3} className={inputCls} style={{ resize: 'vertical', minHeight: 72 }}
-            placeholder="Optional notes…"
+            placeholder="Optional…"
             value={form.notes} onChange={e => set('notes', e.target.value)} />
         </div>
+
       </div>
 
       <div className="flex gap-2 mt-3 justify-end">
