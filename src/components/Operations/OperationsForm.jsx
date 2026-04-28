@@ -1,27 +1,38 @@
 import { useState } from 'react'
+import { INCOME_CATEGORIES } from '../../utils/categories'
 import { todayISO } from '../../utils/formatters'
 
 const ACTIVITY_CATEGORIES = ['Harvest', 'Fertilizer', 'Maintenance', 'Planting']
 
-const EMPTY = { date: todayISO(), activity: '', category: 'Harvest', notes: '' }
+const makeEmpty = (crop) => ({
+  date: todayISO(),
+  crop: crop || INCOME_CATEGORIES[0],
+  activity: '',
+  category: 'Harvest',
+  notes: '',
+})
 
-export default function OperationsForm({ onSave, editingEntry, onCancelEdit }) {
-  const [form, setForm]     = useState(editingEntry || EMPTY)
+export default function OperationsForm({ onSave, editingEntry, onCancelEdit, defaultCrop }) {
+  const [form, setForm]     = useState(editingEntry || makeEmpty(defaultCrop))
   const [saving, setSaving] = useState(false)
   const isEditing           = !!editingEntry
 
-  // Sync when editingEntry changes
+  // Sync when editingEntry changes (edit button clicked)
   if (editingEntry && editingEntry.id !== form.id) setForm(editingEntry)
+  // Sync default crop when filter changes (only for new entries)
+  if (!editingEntry && defaultCrop && defaultCrop !== 'all' && form.crop !== defaultCrop && !form.id) {
+    setForm(prev => ({ ...prev, crop: defaultCrop }))
+  }
 
   const set = (field, val) => setForm(prev => ({ ...prev, [field]: val }))
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!form.activity.trim() || !form.date) return
+    if (!form.activity.trim() || !form.date || !form.crop) return
     setSaving(true)
     await onSave({ ...form })
     setSaving(false)
-    if (!isEditing) setForm({ ...EMPTY, date: form.date })
+    if (!isEditing) setForm(makeEmpty(defaultCrop !== 'all' ? defaultCrop : form.crop))
   }
 
   const inputCls = "w-full border border-gray-200 rounded px-2.5 py-1.5 text-sm text-gray-800 bg-white focus:outline-none focus:border-gray-400"
@@ -43,8 +54,16 @@ export default function OperationsForm({ onSave, editingEntry, onCancelEdit }) {
             onChange={e => set('date', e.target.value)} required />
         </div>
 
-        {/* Activity description — spans 3 columns, textarea 3 rows */}
-        <div className="col-span-3">
+        {/* Crop */}
+        <div>
+          <label className={labelCls}>Crop</label>
+          <select className={inputCls} value={form.crop} onChange={e => set('crop', e.target.value)} required>
+            {INCOME_CATEGORIES.map(c => <option key={c}>{c}</option>)}
+          </select>
+        </div>
+
+        {/* Activity description — spans 2 columns, textarea 3 rows */}
+        <div className="col-span-2">
           <label className={labelCls}>Activity Description</label>
           <textarea rows={3} className={inputCls} style={{ resize: 'vertical', minHeight: 72 }}
             placeholder="Describe the activity in detail…"
