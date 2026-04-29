@@ -28,8 +28,8 @@ export default function App() {
 
   // Logged in → show the app
   return (
-    <div className="min-h-screen py-4 px-2" style={{ background: '#f3f4f4' }}>
-      <div className="max-w-6xl mx-auto shadow-lg overflow-hidden" style={{ borderRadius: '10px', border: '1px solid #e2e2e2' }}>
+    <div className="min-h-screen sm:py-4 sm:px-2" style={{ background: '#f3f4f4' }}>
+      <div className="max-w-6xl mx-auto shadow-lg overflow-hidden" style={{ borderRadius: '0px', border: '1px solid #e2e2e2' }}>
         <TopBar
           activeTab={activeTab}
           setActiveTab={setActiveTab}
