@@ -143,20 +143,17 @@ function MetricCard({ label, value, sub, color }) {
   )
 }
 
-// ── Custom label inside/above bar for Net Profit chart ────────────────────────
+// ── Custom label for Net Profit bars — always above the bar, black, never clipped ─
 function NetLabel({ x, y, width, height, value, monthCount }) {
   if (!value || Math.abs(value) < 1) return null
-  const label = `${Math.round(value / 1000)}k`
-  const isPos  = value >= 0
-  // For thin bars (many months), place label above/below; for wide bars place inside
-  const minBarForInside = 28
-  const inside = Math.abs(height) >= minBarForInside
-  const textY  = inside
-    ? (isPos ? y + Math.abs(height) / 2 + 4 : y + Math.abs(height) / 2 + 4)
-    : (isPos ? y - 4 : y + Math.abs(height) + 10)
+  // For positive bars: y = top of bar. For negative bars: y = zero line (bar goes down).
+  // In both cases placing the label at y - 6 puts it just above the highest point.
+  const absK  = Math.round(Math.abs(value) / 1000)
+  const label = value >= 0 ? `${absK}k` : `-${absK}k`
   return (
-    <text x={x + width / 2} y={textY} textAnchor="middle"
-      fill={inside ? '#fff' : (isPos ? '#3a6b3c' : '#a32d2d')}
+    <text x={x + width / 2} y={y - 4} textAnchor="middle"
+      dominantBaseline="auto"
+      fill="#111827"
       fontSize={monthCount > 12 ? 8 : 10} fontWeight="600">
       {label}
     </text>
@@ -331,7 +328,7 @@ export default function Dashboard({ transactions, loading }) {
           <div className={card}>
             <div className={sl}>Monthly Net Profit</div>
             <ResponsiveContainer width="100%" height={160}>
-              <BarChart data={netData} {...bProps} margin={{ top: 16, right: 20, left: -20, bottom: 0 }}>
+              <BarChart data={netData} {...bProps} margin={{ top: 24, right: 20, left: -20, bottom: 0 }}>
                 <XAxis dataKey="label" tick={{ fontSize: tickFontSize, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} tickFormatter={v => `${Math.round(v/1000)}k`} />
                 <Tooltip formatter={fmtTooltip} contentStyle={{ fontSize: 12, border: '1px solid #e5e7eb' }} />
