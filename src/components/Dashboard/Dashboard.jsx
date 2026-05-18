@@ -143,16 +143,14 @@ function MetricCard({ label, value, sub, color }) {
   )
 }
 
-// ── Custom label for Net Profit bars — always above the bar, black, never clipped ─
-function NetLabel({ x, y, width, height, value, monthCount }) {
+// ── Custom label for Net Profit bars — pinned to top of chart area, black font ──
+function NetLabel({ x, width, value, monthCount }) {
   if (!value || Math.abs(value) < 1) return null
-  // For positive bars: y = top of bar. For negative bars: y = zero line (bar goes down).
-  // In both cases placing the label at y - 6 puts it just above the highest point.
   const absK  = Math.round(Math.abs(value) / 1000)
   const label = value >= 0 ? `${absK}k` : `-${absK}k`
   return (
-    <text x={x + width / 2} y={y - 4} textAnchor="middle"
-      dominantBaseline="auto"
+    <text x={x + width / 2} y={8} textAnchor="middle"
+      dominantBaseline="hanging"
       fill="#111827"
       fontSize={monthCount > 12 ? 8 : 10} fontWeight="600">
       {label}
