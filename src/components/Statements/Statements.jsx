@@ -1,28 +1,56 @@
 import { useState, useMemo } from 'react'
 import { INCOME_CATEGORIES, EXPENSE_CATEGORIES } from '../../utils/categories'
-import { fmtCurrency, fmtNumber, fmtShort, monthLabel } from '../../utils/formatters'
+import { fmtCurrency, fmtNumber } from '../../utils/formatters'
 import { exportExcel } from './exportExcel'
 import { exportPDF }   from './exportPDF'
 
-function getLast12Months() {
-  const result = []
-  const now = new Date()
-  for (let i = 11; i >= 0; i--) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
-    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
-    result.push({ key, label: monthLabel(d.getFullYear(), d.getMonth() + 1) })
-  }
-  return result
+// ── Date helpers ──────────────────────────────────────────────────────────────
+function toISO(d)      { return d.toISOString().slice(0, 10) }
+function todayISO()    { return toISO(new Date()) }
+function firstOfMonth(){ const d = new Date(); d.setDate(1); return toISO(d) }
+function firstOfYear() { const d = new Date(); d.setMonth(0, 1); return toISO(d) }
+
+function fmtDisplayDate(iso) {
+  if (!iso) return ''
+  const [y, m, d] = iso.split('-')
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+  return `${d} ${months[parseInt(m,10)-1]} ${y}`
+}
+
+function periodLabel(from, to) {
+  return `${fmtDisplayDate(from)} — ${fmtDisplayDate(to)}`
+}
+
+// ── Quick presets ─────────────────────────────────────────────────────────────
+function getPresets() {
+  const now   = new Date()
+  const y     = now.getFullYear()
+  const m     = now.getMonth()
+  const today = todayISO()
+
+  const firstThisMonth = toISO(new Date(y, m, 1))
+  const lastThisMonth  = toISO(new Date(y, m + 1, 0))
+
+  const firstLastMonth = toISO(new Date(y, m - 1, 1))
+  const lastLastMonth  = toISO(new Date(y, m, 0))
+
+  const firstThisYear  = toISO(new Date(y, 0, 1))
+  const lastThisYear   = toISO(new Date(y, 11, 31))
+
+  return [
+    { label: 'This Month', from: firstThisMonth, to: today },
+    { label: 'Last Month', from: firstLastMonth, to: lastLastMonth },
+    { label: 'This Year',  from: firstThisYear,  to: today },
+  ]
 }
 
 export default function Statements({ transactions }) {
-  const months = getLast12Months()
-  const [selectedKey, setSelectedKey] = useState(months[months.length - 1].key)
-  const selectedLabel = months.find(m => m.key === selectedKey)?.label || ''
+  const [fromDate, setFromDate] = useState(firstOfMonth())
+  const [toDate,   setToDate]   = useState(todayISO())
 
   const filtered = useMemo(() =>
-    transactions.filter(t => t.date?.startsWith(selectedKey)),
-    [transactions, selectedKey])
+    transactions.filter(t => t.date && t.date >= fromDate && t.date <= toDate),
+    [transactions, fromDate, toDate])
 
   const incomeRows = INCOME_CATEGORIES.map(cat => ({
     cat,
@@ -39,34 +67,49 @@ export default function Statements({ transactions }) {
   const net          = totalIncome - totalExpense
   const margin       = totalIncome > 0 ? Math.round((net / totalIncome) * 100) : 0
 
-  const today = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })
-  const [y, m] = selectedKey.split('-').map(Number)
-  const daysInMonth = new Date(y, m, 0).getDate()
-  const periodStr = `01 ${new Date(y, m-1, 1).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })} — ${String(daysInMonth).padStart(2,'0')} ${new Date(y, m-1, 1).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}`
-
-  const stmtData = { selectedLabel, periodStr, today, incomeRows, expenseRows, totalIncome, totalExpense, net, margin }
+  const today      = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })
+  const periodStr  = periodLabel(fromDate, toDate)
+  const stmtData   = { selectedLabel: periodStr, periodStr, today, incomeRows, expenseRows, totalIncome, totalExpense, net, margin }
 
   const maxIncome  = Math.max(...incomeRows.map(r => r.amount), 1)
   const maxExpense = Math.max(...expenseRows.map(r => r.amount), 1)
+
+  const presets    = getPresets()
+  const inputCls   = "border border-gray-200 rounded px-2.5 py-1.5 text-sm bg-white text-gray-700 focus:outline-none focus:border-gray-400"
 
   return (
     <div className="p-4" style={{ background: '#f9fafb' }}>
       {/* Toolbar */}
       <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-        <div className="flex items-center gap-2">
-          <button onClick={() => {
-            const i = months.findIndex(m => m.key === selectedKey)
-            if (i > 0) setSelectedKey(months[i - 1].key)
-          }} className="w-7 h-7 flex items-center justify-center border border-gray-200 rounded cursor-pointer bg-white text-gray-500 hover:bg-gray-50">‹</button>
-          <select className="border border-gray-200 rounded px-2.5 py-1.5 text-sm bg-white text-gray-700 focus:outline-none"
-            value={selectedKey} onChange={e => setSelectedKey(e.target.value)}>
-            {months.map(m => <option key={m.key} value={m.key}>{m.label}</option>)}
-          </select>
-          <button onClick={() => {
-            const i = months.findIndex(m => m.key === selectedKey)
-            if (i < months.length - 1) setSelectedKey(months[i + 1].key)
-          }} className="w-7 h-7 flex items-center justify-center border border-gray-200 rounded cursor-pointer bg-white text-gray-500 hover:bg-gray-50">›</button>
+
+        {/* Date range + presets */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs text-gray-500">From</span>
+            <input type="date" className={inputCls} value={fromDate}
+              onChange={e => { if (e.target.value <= toDate) setFromDate(e.target.value) }} />
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs text-gray-500">To</span>
+            <input type="date" className={inputCls} value={toDate}
+              onChange={e => { if (e.target.value >= fromDate) setToDate(e.target.value) }} />
+          </div>
+          {/* Quick presets */}
+          <div className="flex gap-1 ml-1">
+            {presets.map(p => (
+              <button key={p.label}
+                onClick={() => { setFromDate(p.from); setToDate(p.to) }}
+                className="px-2.5 py-1.5 text-xs rounded border cursor-pointer transition-colors"
+                style={fromDate === p.from && toDate === p.to
+                  ? { background: '#1a3020', color: '#f5edd8', borderColor: '#1a3020' }
+                  : { background: 'white', color: '#6b7280', borderColor: '#e5e7eb' }}>
+                {p.label}
+              </button>
+            ))}
+          </div>
         </div>
+
+        {/* Export buttons */}
         <div className="flex gap-2">
           <button onClick={() => window.print()}
             className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded border border-gray-200 bg-white text-gray-600 cursor-pointer hover:bg-gray-50">
@@ -101,8 +144,8 @@ export default function Statements({ transactions }) {
         </div>
 
         <table className="w-full border-collapse text-sm">
-          {/* INCOME */}
           <tbody>
+            {/* INCOME */}
             <tr style={{ background: '#f9fafb', borderLeft: '3px solid #3a6b3c', borderTop: '1px solid #e5e7eb', borderBottom: '1px solid #e5e7eb' }}>
               <td className="px-6 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider" colSpan={2}>Income</td>
               <td className="px-6 py-2 text-xs font-medium text-right" style={{ color: '#3a6b3c' }}>LKR</td>
