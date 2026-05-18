@@ -24,7 +24,9 @@ export function useTransactions(userEmail, ready = false) {
   useEffect(() => { if (ready) fetchAll() }, [fetchAll, ready])
 
   const addTransaction = async (txn) => {
-    const payload = { ...txn, entered_by: userEmail || null }
+    // Strip any stale id / audit fields that must not be sent on insert
+    const { id: _id, created_at: _ca, entered_by: _eb, ...safeFields } = txn
+    const payload = { ...safeFields, entered_by: userEmail || null }
     const { data, error } = await supabase
       .from('transactions')
       .insert([payload])
