@@ -1,12 +1,45 @@
+import { useState } from 'react'
 import { fmtNumber, fmtDate } from '../../utils/formatters'
 import { userLabel } from '../../utils/userLabels'
 
 const PAGE_SIZE = 10
 
+const SORTABLE = ['Date', 'Description', 'Type', 'Category', 'Amount (LKR)']
+
+function sortRows(rows, key, dir) {
+  if (!key) return rows
+  return [...rows].sort((a, b) => {
+    let av, bv
+    if (key === 'Date')          { av = a.date;        bv = b.date }
+    else if (key === 'Description') { av = (a.description || '').toLowerCase(); bv = (b.description || '').toLowerCase() }
+    else if (key === 'Type')     { av = a.type;        bv = b.type }
+    else if (key === 'Category') { av = a.category;    bv = b.category }
+    else if (key === 'Amount (LKR)') { av = Number(a.amount); bv = Number(b.amount) }
+    if (av < bv) return dir === 'asc' ? -1 : 1
+    if (av > bv) return dir === 'asc' ? 1 : -1
+    return 0
+  })
+}
+
 export default function TransactionTable({ transactions, page, setPage, onEdit, onDelete }) {
-  const total = transactions.length
-  const pages = Math.max(1, Math.ceil(total / PAGE_SIZE))
-  const rows  = transactions.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+  const [sortKey, setSortKey] = useState('Date')
+  const [sortDir, setSortDir] = useState('desc')
+
+  const handleSort = (col) => {
+    if (!SORTABLE.includes(col)) return
+    if (sortKey === col) {
+      setSortDir(d => d === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortKey(col)
+      setSortDir('asc')
+    }
+    setPage(1)
+  }
+
+  const sorted = sortRows(transactions, sortKey, sortDir)
+  const total  = sorted.length
+  const pages  = Math.max(1, Math.ceil(total / PAGE_SIZE))
+  const rows   = sorted.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
   const pillStyle = (type) => type === 'income'
     ? { background: '#eaf3de', color: '#3b6d11' }
@@ -14,15 +47,31 @@ export default function TransactionTable({ transactions, page, setPage, onEdit, 
 
   const amtStyle = (type) => ({ color: type === 'income' ? '#3a6b3c' : '#a32d2d', fontWeight: 500 })
 
+  const SortIcon = ({ col }) => {
+    if (!SORTABLE.includes(col)) return null
+    const active = sortKey === col
+    return (
+      <span className="inline-flex flex-col ml-1 leading-none" style={{ verticalAlign: 'middle', gap: 1 }}>
+        <span style={{ fontSize: 7, lineHeight: 1, color: active && sortDir === 'asc' ? '#1a3020' : '#c0c0c0' }}>▲</span>
+        <span style={{ fontSize: 7, lineHeight: 1, color: active && sortDir === 'desc' ? '#1a3020' : '#c0c0c0' }}>▼</span>
+      </span>
+    )
+  }
+
+  const COLS = ['Date', 'Description', 'Type', 'Category', 'Amount (LKR)', 'Notes', 'Entered By', '']
+
   return (
     <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full border-collapse text-sm">
           <thead>
             <tr style={{ background: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
-              {['Date','Description','Type','Category','Amount (LKR)','Notes','Entered By',''].map(h => (
-                <th key={h} className="text-left px-3 py-2.5 text-xs font-medium text-gray-500 uppercase tracking-wide whitespace-nowrap
-                  last:text-right">{h}</th>
+              {COLS.map(h => (
+                <th key={h}
+                  onClick={() => handleSort(h)}
+                  className={`text-left px-3 py-2.5 text-xs font-medium text-gray-500 uppercase tracking-wide whitespace-nowrap last:text-right select-none ${SORTABLE.includes(h) ? 'cursor-pointer hover:text-gray-800' : ''}`}>
+                  {h}<SortIcon col={h} />
+                </th>
               ))}
             </tr>
           </thead>
