@@ -1,14 +1,10 @@
 import { useState, useMemo } from 'react'
 import { INCOME_CATEGORIES, EXPENSE_CATEGORIES } from '../../utils/categories'
-import { fmtCurrency, fmtNumber } from '../../utils/formatters'
+import { fmtCurrency, fmtNumber, toLocalISO as toISO, todayISO, firstOfYearISO } from '../../utils/formatters'
 import { exportExcel } from './exportExcel'
 import { exportPDF }   from './exportPDF'
 
 // ── Date helpers ──────────────────────────────────────────────────────────────
-function toISO(d)      { return d.toISOString().slice(0, 10) }
-function todayISO()    { return toISO(new Date()) }
-function firstOfMonth(){ const d = new Date(); d.setDate(1); return toISO(d) }
-function firstOfYear() { const d = new Date(); d.setMonth(0, 1); return toISO(d) }
 
 function fmtDisplayDate(iso) {
   if (!iso) return ''
@@ -29,13 +25,11 @@ function getPresets() {
   const today = todayISO()
 
   const firstThisMonth = toISO(new Date(y, m, 1))
-  const lastThisMonth  = toISO(new Date(y, m + 1, 0))
 
   const firstLastMonth = toISO(new Date(y, m - 1, 1))
   const lastLastMonth  = toISO(new Date(y, m, 0))
 
   const firstThisYear  = toISO(new Date(y, 0, 1))
-  const lastThisYear   = toISO(new Date(y, 11, 31))
 
   return [
     { label: 'This Month', from: firstThisMonth, to: today },
@@ -44,8 +38,11 @@ function getPresets() {
   ]
 }
 
+// Share of a section total, rounded like the Dashboard pie legends (e.g. 81%)
+const fmtPct = (amount, total) => (amount > 0 && total > 0 ? `${Math.round((amount / total) * 100)}%` : '—')
+
 export default function Statements({ transactions }) {
-  const [fromDate, setFromDate] = useState(firstOfMonth())
+  const [fromDate, setFromDate] = useState(firstOfYearISO())
   const [toDate,   setToDate]   = useState(todayISO())
 
   const filtered = useMemo(() =>
@@ -148,6 +145,7 @@ export default function Statements({ transactions }) {
             {/* INCOME */}
             <tr style={{ background: '#f9fafb', borderLeft: '3px solid #3a6b3c', borderTop: '1px solid #e5e7eb', borderBottom: '1px solid #e5e7eb' }}>
               <td className="px-6 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider" colSpan={2}>Income</td>
+              <td className="px-4 py-2 text-xs font-medium text-right w-20" style={{ color: '#3a6b3c' }}>%</td>
               <td className="px-6 py-2 text-xs font-medium text-right" style={{ color: '#3a6b3c' }}>LKR</td>
             </tr>
             {incomeRows.map(({ cat, amount }) => (
@@ -158,6 +156,7 @@ export default function Statements({ transactions }) {
                     <div className="h-full rounded" style={{ width: `${Math.round((amount/maxIncome)*100)}%`, background: '#3a6b3c' }} />
                   </div>
                 </td>
+                <td className="px-4 py-1.5 text-right text-xs text-gray-500 w-20">{fmtPct(amount, totalIncome)}</td>
                 <td className="px-6 py-1.5 text-right font-medium" style={{ color: amount > 0 ? '#3a6b3c' : '#9ca3af' }}>
                   {amount > 0 ? fmtNumber(amount) : '—'}
                 </td>
@@ -165,12 +164,14 @@ export default function Statements({ transactions }) {
             ))}
             <tr style={{ background: '#f9fafb', borderTop: '1px solid #d1d5db' }}>
               <td className="px-6 py-2 text-sm font-medium text-gray-700" colSpan={2}>Total Income</td>
+              <td className="px-4 py-2 text-right text-xs font-medium text-gray-600">{totalIncome > 0 ? '100%' : '—'}</td>
               <td className="px-6 py-2 text-right font-medium" style={{ color: '#3a6b3c' }}>{fmtNumber(totalIncome)}</td>
             </tr>
 
             {/* EXPENSES */}
             <tr style={{ background: '#f9fafb', borderLeft: '3px solid #a32d2d', borderTop: '1px solid #e5e7eb', borderBottom: '1px solid #e5e7eb' }}>
               <td className="px-6 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider" colSpan={2}>Expenses</td>
+              <td className="px-4 py-2 text-xs font-medium text-right w-20" style={{ color: '#a32d2d' }}>%</td>
               <td className="px-6 py-2 text-xs font-medium text-right" style={{ color: '#a32d2d' }}>LKR</td>
             </tr>
             {expenseRows.map(({ cat, amount }) => (
@@ -181,6 +182,7 @@ export default function Statements({ transactions }) {
                     <div className="h-full rounded" style={{ width: `${Math.round((amount/maxExpense)*100)}%`, background: '#a32d2d' }} />
                   </div>
                 </td>
+                <td className="px-4 py-1.5 text-right text-xs text-gray-500 w-20">{fmtPct(amount, totalExpense)}</td>
                 <td className="px-6 py-1.5 text-right font-medium" style={{ color: amount > 0 ? '#a32d2d' : '#9ca3af' }}>
                   {amount > 0 ? fmtNumber(amount) : '—'}
                 </td>
@@ -188,12 +190,13 @@ export default function Statements({ transactions }) {
             ))}
             <tr style={{ background: '#f9fafb', borderTop: '1px solid #d1d5db' }}>
               <td className="px-6 py-2 text-sm font-medium text-gray-700" colSpan={2}>Total Expenses</td>
+              <td className="px-4 py-2 text-right text-xs font-medium text-gray-600">{totalExpense > 0 ? '100%' : '—'}</td>
               <td className="px-6 py-2 text-right font-medium" style={{ color: '#a32d2d' }}>{fmtNumber(totalExpense)}</td>
             </tr>
 
             {/* NET */}
             <tr style={{ borderTop: '2px solid #d1d5db' }}>
-              <td className="px-6 py-3 font-medium text-gray-800" colSpan={2}>
+              <td className="px-6 py-3 font-medium text-gray-800" colSpan={3}>
                 Net Profit / (Loss)
                 <span className="ml-2 text-xs px-2 py-0.5 rounded" style={{ background: '#eaf3de', color: '#3b6d11' }}>{margin}% margin</span>
               </td>

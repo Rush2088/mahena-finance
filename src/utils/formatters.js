@@ -25,4 +25,16 @@ export const monthLabel = (year, month) => {
 
 export const monthKey = (dateStr) => dateStr?.slice(0, 7) // "2026-04"
 
-export const todayISO = () => new Date().toISOString().slice(0, 10)
+// Local calendar date as YYYY-MM-DD. Do NOT use toISOString() for this: it converts
+// to UTC, so in Sri Lanka (UTC+5:30) local midnight becomes the previous day.
+export const toLocalISO = (d) => {
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${y}-${m}-${day}`
+}
+
+export const todayISO = () => toLocalISO(new Date())
+
+// 1 January of the current year (default start for Dashboard / Statements)
+export const firstOfYearISO = () => toLocalISO(new Date(new Date().getFullYear(), 0, 1))

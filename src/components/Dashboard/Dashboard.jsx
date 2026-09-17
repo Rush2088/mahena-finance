@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from 'react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, Legend,
          PieChart, Pie, LabelList } from 'recharts'
 import { INCOME_CATEGORIES, EXPENSE_CATEGORIES } from '../../utils/categories'
-import { fmtShort, fmtCurrency } from '../../utils/formatters'
+import { fmtShort, fmtCurrency, toLocalISO as toISO, todayISO, firstOfYearISO } from '../../utils/formatters'
 
 // ── Pastel colour palettes (75% opacity) ──────────────────────────────────────
 const INCOME_PASTELS = [
@@ -26,9 +26,7 @@ const EXPENSE_PASTELS = [
 ]
 
 // ── Date helpers ──────────────────────────────────────────────────────────────
-function toISO(d)      { return d.toISOString().slice(0, 10) }
-function todayISO()    { return toISO(new Date()) }
-function firstOfMonth(){ const d = new Date(); d.setDate(1); return toISO(d) }
+// toISO / todayISO come from utils/formatters (local-date safe)
 
 function fmtDisplay(iso) {
   if (!iso) return ''
@@ -160,7 +158,7 @@ function NetLabel({ x, width, value, monthCount }) {
 
 // ── Main dashboard ─────────────────────────────────────────────────────────────
 export default function Dashboard({ transactions, loading }) {
-  const [fromDate, setFromDate] = useState(firstOfMonth())
+  const [fromDate, setFromDate] = useState(firstOfYearISO())
   const [toDate,   setToDate]   = useState(todayISO())
 
   useEffect(() => {
