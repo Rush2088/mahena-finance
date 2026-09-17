@@ -146,13 +146,13 @@ export default function Statements({ transactions }) {
             <tr style={{ background: '#f9fafb', borderLeft: '3px solid #3a6b3c', borderTop: '1px solid #e5e7eb', borderBottom: '1px solid #e5e7eb' }}>
               <td className="px-6 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider" colSpan={2}>Income</td>
               <td className="px-4 py-2 text-xs font-medium text-right w-20" style={{ color: '#3a6b3c' }}>%</td>
-              <td className="px-6 py-2 text-xs font-medium text-right" style={{ color: '#3a6b3c' }}>LKR</td>
+              <td className="px-6 py-2 text-xs font-medium text-right w-40" style={{ color: '#3a6b3c' }}>LKR</td>
             </tr>
             {incomeRows.map(({ cat, amount }) => (
               <tr key={cat} className="border-b border-gray-50 hover:bg-gray-50">
                 <td className="pl-10 pr-4 py-1.5 text-gray-500 w-48">{cat}</td>
-                <td className="px-4 py-1.5 w-28">
-                  <div className="rounded h-1.5 overflow-hidden" style={{ background: '#f3f4f4' }}>
+                <td className="px-4 py-1.5">
+                  <div className="rounded h-1.5 overflow-hidden w-24" style={{ background: '#f3f4f4' }}>
                     <div className="h-full rounded" style={{ width: `${Math.round((amount/maxIncome)*100)}%`, background: '#3a6b3c' }} />
                   </div>
                 </td>
@@ -172,13 +172,13 @@ export default function Statements({ transactions }) {
             <tr style={{ background: '#f9fafb', borderLeft: '3px solid #a32d2d', borderTop: '1px solid #e5e7eb', borderBottom: '1px solid #e5e7eb' }}>
               <td className="px-6 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider" colSpan={2}>Expenses</td>
               <td className="px-4 py-2 text-xs font-medium text-right w-20" style={{ color: '#a32d2d' }}>%</td>
-              <td className="px-6 py-2 text-xs font-medium text-right" style={{ color: '#a32d2d' }}>LKR</td>
+              <td className="px-6 py-2 text-xs font-medium text-right w-40" style={{ color: '#a32d2d' }}>LKR</td>
             </tr>
             {expenseRows.map(({ cat, amount }) => (
               <tr key={cat} className="border-b border-gray-50 hover:bg-gray-50">
                 <td className="pl-10 pr-4 py-1.5 text-gray-500 w-48">{cat}</td>
-                <td className="px-4 py-1.5 w-28">
-                  <div className="rounded h-1.5 overflow-hidden" style={{ background: '#f3f4f4' }}>
+                <td className="px-4 py-1.5">
+                  <div className="rounded h-1.5 overflow-hidden w-24" style={{ background: '#f3f4f4' }}>
                     <div className="h-full rounded" style={{ width: `${Math.round((amount/maxExpense)*100)}%`, background: '#a32d2d' }} />
                   </div>
                 </td>
